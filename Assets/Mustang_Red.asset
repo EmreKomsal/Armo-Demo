@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb33db70877db5a4782e8d20a4ab7aee, type: 3}
+  m_Name: Mustang_Red
+  m_EditorClassIdentifier: 
+  CarName: Mustang_Red
+  model: {fileID: 5157246972268841619, guid: 1dfdf89d32fb16b4f87ea55d405c1279, type: 3}
+  speed: 20
+  carColor: {r: 1, g: 0.023584902, b: 0.023584902, a: 0}
+  acceleration: 10
