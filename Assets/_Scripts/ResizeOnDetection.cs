@@ -28,7 +28,7 @@ public class ResizeOnDetection : MonoBehaviour
     private float timeMoving = 0f;
 
     float speed = 0.3f;
-    float speedMlt = 1f;
+    float speedMlp = 1f;
     float holdTime = 0.2f;
 
     public TMP_Text timer;

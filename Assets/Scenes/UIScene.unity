@@ -746,6 +746,7 @@ GameObject:
   - component: {fileID: 50720755}
   - component: {fileID: 50720754}
   - component: {fileID: 50720756}
+  - component: {fileID: 50720757}
   m_Layer: 5
   m_Name: Preview Raw Image
   m_TagString: Selectable
@@ -827,6 +828,19 @@ MonoBehaviour:
   onDeselected:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &50720757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50720752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50bc78bc176e34e408a8f8d1f2def83a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToRotate: {fileID: 1923133165}
 --- !u!1 &54727398
 GameObject:
   m_ObjectHideFlags: 0
@@ -10356,6 +10370,7 @@ GameObject:
   - component: {fileID: 737981025}
   - component: {fileID: 737981027}
   - component: {fileID: 737981026}
+  - component: {fileID: 737981028}
   m_Layer: 5
   m_Name: Preview Raw Image (1)
   m_TagString: Untagged
@@ -10418,6 +10433,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 737981024}
   m_CullTransparentMesh: 1
+--- !u!114 &737981028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737981024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50bc78bc176e34e408a8f8d1f2def83a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToRotate: {fileID: 1923133165}
 --- !u!1 &743958488
 GameObject:
   m_ObjectHideFlags: 0
@@ -15261,6 +15289,7 @@ GameObject:
   - component: {fileID: 1057208964}
   - component: {fileID: 1057208966}
   - component: {fileID: 1057208965}
+  - component: {fileID: 1057208967}
   m_Layer: 5
   m_Name: Preview Raw Image (1)
   m_TagString: Untagged
@@ -15323,6 +15352,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1057208963}
   m_CullTransparentMesh: 1
+--- !u!114 &1057208967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057208963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50bc78bc176e34e408a8f8d1f2def83a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToRotate: {fileID: 1923133165}
 --- !u!1 &1063339493
 GameObject:
   m_ObjectHideFlags: 0
@@ -23448,7 +23490,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1685878266
 RectTransform:
   m_ObjectHideFlags: 0
