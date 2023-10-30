@@ -5489,7 +5489,7 @@ MonoBehaviour:
     value: 0
   - tabHeaderButton: {fileID: 28914170}
     tabHeaderSelectedBG: {fileID: 1079263732}
-    tabHeaderNonSelectedBG: {fileID: 1646023910}
+    tabHeaderNonSelectedBG: {fileID: 28914166}
     tabParent: {fileID: 1063339493}
     tabType: 1
     color: {r: 0.43921572, g: 0.7686275, b: 0.44705886, a: 1}
