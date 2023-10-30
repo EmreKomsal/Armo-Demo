@@ -1,14 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonNew<GameManager>
 {
     string carsPath = "Cars";
-    public int carID = 0;
-    public int wheelID = 0;
-    public int spoilerID = 0;
     public GameObject carPrefab;
-
+    public SavedCarProps lastCarProps;
+    
     void Start()
     {
         // Register the OnSceneLoaded event
@@ -42,7 +40,7 @@ public class GameManager : MonoBehaviour
         // Instantiate each prefab as a child of the parentObject
         foreach (GameObject prefab in prefabs)
         {
-            if (i == carID)
+            if (i == lastCarProps.kaportaId)
             {
                 carPrefab = Instantiate(prefab, parentObject);
                 carPrefab.SetActive(false);
@@ -50,20 +48,19 @@ public class GameManager : MonoBehaviour
                 CarData carDataComponent = carPrefab.GetComponent<CarData>();
                 if (carDataComponent != null)
                 {
-                    carDataComponent.SetPartsByID(wheelID, spoilerID);
+                    carDataComponent.SetPartsByID(lastCarProps.lastikId, lastCarProps.ruzgarlikId);
                 }
             }
             i++;
         }
     }
+    
 
-    public void SetCarID(int newID, int new_wheelID, int new_spoilerID)
+    public void SetCarProps(SavedCarProps newCarProps)
     {
-        carID = newID;
-        spoilerID = new_spoilerID;
-        wheelID = new_wheelID;
+        lastCarProps = newCarProps;
     }
-
+    
     public void LoadCarPrefab(Transform parent)
     {
         if (carPrefab != null)

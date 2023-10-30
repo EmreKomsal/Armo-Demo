@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIControl : SingletonNew<UIControl>
@@ -198,7 +199,8 @@ public class UIControl : SingletonNew<UIControl>
 
     public void GaragePlay()
     {
-        
+        GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(garageCarIndex));
+        SceneManager.LoadScene(1);
     }
 
     public void PlayBack()
@@ -213,7 +215,8 @@ public class UIControl : SingletonNew<UIControl>
 
     public void PlayPlay()
     {
-        
+        GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(playCarIndex));
+        SceneManager.LoadScene(1);
     }
 
 

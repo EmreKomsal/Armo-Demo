@@ -279,7 +279,7 @@ public class UIManager : MonoBehaviour
     {
         wheelID = carData.activeWheelID;
         spoilerID = carData.activeSpoilerID;
-        gameManager.SetCarID(carID, wheelID, spoilerID);
+        // gameManager.SetCarID(carID, wheelID, spoilerID);
         SceneManager.LoadScene(1);
     }
 }
