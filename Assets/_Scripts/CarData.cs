@@ -17,9 +17,10 @@ public class CarData : MonoBehaviour
     public int activeWheelID;
     public int activeSpoilerID;
 
-
     public List<GameObject> spoilerList;
     public List<GameObject> wheelList;
+
+    public float speedMlp = 1f;
 
 
     public void SetNextWheel()

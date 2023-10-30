@@ -28,6 +28,7 @@ public class ResizeOnDetection : MonoBehaviour
     private float timeMoving = 0f;
 
     float speed = 0.3f;
+    float speedMlt = 1f;
     float holdTime = 0.2f;
 
     public TMP_Text timer;
@@ -170,7 +171,7 @@ public class ResizeOnDetection : MonoBehaviour
 
         while (Vector3.Distance(car.transform.position, finishHolder.position) > 0.1f) // Tolerance of 0.1 units
         {
-            car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * Time.deltaTime);
+            car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * Time.deltaTime);
             yield return null; // Wait for the next frame
         }
 
