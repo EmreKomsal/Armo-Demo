@@ -157,6 +157,7 @@ public class ResizeOnDetection : MonoBehaviour
 
     public void MoveCarToFinish()
     {
+        speed = PartEffectController.I.GetSpeed(gameManager.lastCarProps);
         StartCoroutine(MoveCarCoroutine(speed, holdTime));
         btnStart.GetComponent<Button>().interactable = false;
     }

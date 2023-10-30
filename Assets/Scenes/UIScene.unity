@@ -5466,6 +5466,7 @@ MonoBehaviour:
   garageStatsAccelerationFill: {fileID: 226563482}
   garageStatsSpeedFill: {fileID: 172922073}
   garageStatsWeightFill: {fileID: 775433427}
+  garageStatsLerpSpeed: 5
   playCarExistParent: {fileID: 2005837091}
   playNoCarExistParent: {fileID: 1919815081}
   playPrevCarButton: {fileID: 382431420}
@@ -12481,6 +12482,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 866254298}
   m_CullTransparentMesh: 1
+--- !u!1 &868224209
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 868224210}
+  - component: {fileID: 868224211}
+  m_Layer: 0
+  m_Name: Part Effect Control
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &868224210
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868224209}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8086432745852907094}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &868224211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868224209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb964e5069f8415a83f5b53874d87f07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minSpeed: 0.1
+  maxSpeed: 1
+  baseSpeedKaporta0: 0.3
+  baseSpeedKaporta1: 0.4
+  baseSpeedKaporta2: 0.5
+  speedEffectLastik0: -0.05
+  speedEffectLastik1: 0
+  speedEffectLastik2: 0.05
+  speedEffectMotor0: 0.8
+  speedEffectMotor1: 1
+  speedEffectMotor2: 1.2
+  speedEffectKoltuk0: -0.15
+  speedEffectKoltuk1: 0
+  speedEffectKoltuk2: 0.15
+  speedEffectRuzgarlik0: -0.1
+  speedEffectRuzgarlik1: 0.1
+  speedEffectRuzgarlik2: 0.2
 --- !u!1 &876951000
 GameObject:
   m_ObjectHideFlags: 0
@@ -15498,7 +15560,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1085216273
 RectTransform:
   m_ObjectHideFlags: 0
@@ -26354,7 +26416,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1899000948
 RectTransform:
   m_ObjectHideFlags: 0
@@ -62877,6 +62939,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 43cefd8329e00b146859a1a15b5425b5, type: 3}
+--- !u!4 &8086432745852907094 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8086432747035944288, guid: 43cefd8329e00b146859a1a15b5425b5,
+    type: 3}
+  m_PrefabInstance: {fileID: 8086432745852907093}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8087477558094863901
 GameObject:
   m_ObjectHideFlags: 0

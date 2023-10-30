@@ -40,8 +40,9 @@ public class UIControl : SingletonNew<UIControl>
     public Image garageStatsAccelerationFill;
     public Image garageStatsSpeedFill;
     public Image garageStatsWeightFill;
-
-
+    public float garageStatsLerpSpeed = 5f;
+    private float targetSpeedFill = 0;
+    
     [Header("Play Panel")]
     public GameObject playCarExistParent;
     public GameObject playNoCarExistParent;
@@ -81,6 +82,8 @@ public class UIControl : SingletonNew<UIControl>
     private string newCarNameBuffer = "New Car";
     private bool isToggleCar = true;
     private int lastTabId = 0;
+    private bool isGarage = false;
+    private float garageSpeed = 0f;
     
     private void Start()
     {
@@ -129,8 +132,20 @@ public class UIControl : SingletonNew<UIControl>
         WelcomePanel();
     }
 
+
+    public void Update()
+    {
+        if (isGarage)
+        {
+            garageStatsSpeedFill.fillAmount = Mathf.Lerp(garageStatsSpeedFill.fillAmount, targetSpeedFill,
+                garageStatsLerpSpeed * Time.deltaTime);
+        }
+    }
+
+
     public void WelcomePanel()
     {
+        isGarage = false;
         CloseAllParents();
         welcomePanelParent.SetActive(true);
         PreviewController.I.DeactivatePreview();
@@ -196,7 +211,8 @@ public class UIControl : SingletonNew<UIControl>
     {
         NewCarPanel(garageCarIndex);
     }
-
+    
+    
     public void GaragePlay()
     {
         GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(garageCarIndex));
@@ -263,6 +279,7 @@ public class UIControl : SingletonNew<UIControl>
     
     public void MainPanel()
     {
+        isGarage = false;
         CloseAllParents();
         mainPanelParent.SetActive(true);
         PreviewController.I.DeactivatePreview();
@@ -281,10 +298,19 @@ public class UIControl : SingletonNew<UIControl>
         }
         else
         {
+            isGarage = true;
             garageNoCarExistParent.SetActive(false);
             garageCarExistParent.SetActive(true);
             SetGaragePreviewCar(garageCarIndex);
+            garageSpeed = PartEffectController.I.GetSpeed(SaveCarController.I.GetCarProps(garageCarIndex));
+        
+            garageStatsSpeedFill.fillAmount = (garageSpeed - PartEffectController.I.GetMinMaxSpeed().x) /
+                                              (PartEffectController.I.GetMinMaxSpeed().y -
+                                               PartEffectController.I.GetMinMaxSpeed().x);
+            targetSpeedFill = garageStatsSpeedFill.fillAmount;
         }
+
+        
     }
 
     public void SetGaragePreviewCar(int wantedIndex)
@@ -300,6 +326,10 @@ public class UIControl : SingletonNew<UIControl>
         }
         garageCarIndex = (garageCarIndex + 1) % SaveCarController.I.GetCarCount();
         SetGaragePreviewCar(garageCarIndex);
+        garageSpeed = PartEffectController.I.GetSpeed(SaveCarController.I.GetCarProps(garageCarIndex));
+        targetSpeedFill = (garageSpeed - PartEffectController.I.GetMinMaxSpeed().x) /
+                          (PartEffectController.I.GetMinMaxSpeed().y -
+                           PartEffectController.I.GetMinMaxSpeed().x);
     }
 
     public void GaragePreviousCar()
@@ -311,10 +341,15 @@ public class UIControl : SingletonNew<UIControl>
 
         garageCarIndex = (garageCarIndex == 0 ? (SaveCarController.I.GetCarCount() - 1) : (garageCarIndex - 1));
         SetGaragePreviewCar(garageCarIndex);
+        garageSpeed = PartEffectController.I.GetSpeed(SaveCarController.I.GetCarProps(garageCarIndex));
+        targetSpeedFill = (garageSpeed - PartEffectController.I.GetMinMaxSpeed().x) /
+                          (PartEffectController.I.GetMinMaxSpeed().y -
+                           PartEffectController.I.GetMinMaxSpeed().x);
     }
     
     public void PlayPanel()
     {
+        isGarage = false;
         CloseAllParents();
         playPanelParent.SetActive(true);
         PreviewController.I.ActivatePreview();
@@ -360,6 +395,7 @@ public class UIControl : SingletonNew<UIControl>
     
     public void NewCarPanel(int editIndex = -1)
     {
+        isGarage = false;
         CloseAllParents();
         PreviewController.I.ActivatePreview();
         newCarPanelParent.SetActive(true);
