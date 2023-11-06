@@ -71,3 +71,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 Packages/com.ptc.vuforia.engine-10.15.4.tgz
+TestFinalv2_BackUpThisFolder_ButDontShipItWithYourGame/Managed/VuforiaScripts.dll
+TestFinalv2_BackUpThisFolder_ButDontShipItWithYourGame/Managed/UnityEngine.VRModule.dll
