@@ -6,14 +6,12 @@ using TMPro;
 public class ResizeOnDetection : MonoBehaviour
 {
     public GameManager gameManager;
+    public ARManager ARManager;
 
     public float initialSize = 1.0f; // The initial size of the road object
     public float maxSize = 5.0f; // The maximum size the road can be resized to
     public float minSize = 0.5f; // The minimum size the road can be resized to
 
-    public GameObject[] buttonsToToggle; // Array of buttons to toggle visibility
-
-    public Button btnStart;
 
     public Transform carHolder;
 
@@ -31,11 +29,10 @@ public class ResizeOnDetection : MonoBehaviour
     float speedMlp = 1f;
     float holdTime = 0.2f;
 
-    public TMP_Text timer;
-
     private void Start()
     {
         gameManager = GameObject.FindObjectOfType<GameManager>();
+        ARManager = GameObject.FindAnyObjectByType<ARManager>();
         if (gameManager == null)
         {
             Debug.LogError("GameManager cannot find");
@@ -55,18 +52,41 @@ public class ResizeOnDetection : MonoBehaviour
         }
 
         // Hide buttons when the scene starts
-        SetButtonsVisibility(false);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         // Update the timer if the car is moving
         if (isCarMoving)
         {
-            timeMoving += Time.deltaTime;
-            // Optional: Debug the timer
-            timer.text = ("Car moving for: " + timeMoving + " seconds");
+            MoveCarTowardsFinish();
+            UpdateTimer();
         }
+    }
+
+
+    public string UpdateTimer()
+    {
+        timeMoving += Time.deltaTime;
+        return (timeMoving + " s");
+    }
+
+    public float GetTimer() {
+        return timeMoving;
+    }
+
+    public string UpdateSpeed()
+    {
+        return ((speed * speedMlp * 3.6f) + " km/h");
+    }
+
+    public bool GetFinish() 
+    {
+        if (isCarMoving)
+        {
+            return false;
+        }
+        return true;
     }
 
     private void OnDestroy()
@@ -84,8 +104,9 @@ public class ResizeOnDetection : MonoBehaviour
         // ImageTarget detected, resize the road to the initial size
         ResizeRoad(initialSize);
 
+        ARManager.SetCurrentRoad(this);
+
         // Show buttons
-        SetButtonsVisibility(true);
 
         isTargetFound = true;
     }
@@ -97,7 +118,6 @@ public class ResizeOnDetection : MonoBehaviour
         ResizeRoad(initialSize);
 
         // Hide buttons
-        SetButtonsVisibility(false);
 
         isTargetFound = false;
     }
@@ -114,68 +134,58 @@ public class ResizeOnDetection : MonoBehaviour
         }
     }
 
-    public void MakeRoadLonger()
+    public float MakeRoadLonger()
     {
         if (isTargetFound)
         {
             // Increase the size of the road
             float newSize = transform.localScale.x + 0.1f;
             ResizeRoad(newSize);
+            return newSize;
         }
+        return transform.localScale.x;
     }
 
-    public void MakeRoadShorter()
+    public float MakeRoadShorter()
     {
         if (isTargetFound)
         {
             // Decrease the size of the road
             float newSize = transform.localScale.x - 0.1f;
             ResizeRoad(newSize);
+            return newSize;
         }
+        return transform.localScale.x;
     }
 
     public void SpawnCar()
     {
-        SetButtonsVisibility(false);
-        //Spawn car to start of the road
+        Debug.Log("Hello");
         gameManager.LoadCarPrefab(carHolder);
         car = gameManager.carPrefab;
-        btnStart.onClick.AddListener(MoveCarToFinish);
-        btnStart.gameObject.SetActive(true);
     }
 
-
-
-    private void SetButtonsVisibility(bool visible)
+    public void StartCar()
     {
-        foreach (GameObject button in buttonsToToggle)
-        {
-            button.SetActive(visible);
-        }
-    }
-
-
-    public void MoveCarToFinish()
-    {
-        speed = PartEffectController.I.GetSpeed(gameManager.lastCarProps);
-        StartCoroutine(MoveCarCoroutine(speed, holdTime));
-        btnStart.GetComponent<Button>().interactable = false;
-    }
-
-    private IEnumerator MoveCarCoroutine(float speed, float holdTime)
-    {
-        // Wait for the specified hold time before moving the car
-        yield return new WaitForSeconds(holdTime);
-
         isCarMoving = true;
-        timeMoving = 0f; // Reset the timer
+    }
 
-        while (Vector3.Distance(car.transform.position, finishHolder.position) > 0.1f) // Tolerance of 0.1 units
+    public void MoveCarTowardsFinish()
+    {
+        if (car == null || finishHolder == null)
         {
-            car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * Time.deltaTime);
-            yield return null; // Wait for the next frame
+            Debug.LogError("Car or FinishHolder is not set.");
+            return;
         }
 
-        isCarMoving = false; // Stop the timer when the car reaches the finish point
+        // Move car towards the finish point
+        car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * Time.deltaTime);
+
+        // Check if the car has reached the finish point within a tolerance
+        if (Vector3.Distance(car.transform.position, finishHolder.position) < 0.1f)
+        {
+            // Car has reached the finish
+            isCarMoving = false;
+        }
     }
 }
