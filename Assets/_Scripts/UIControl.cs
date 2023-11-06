@@ -129,7 +129,22 @@ public class UIControl : SingletonNew<UIControl>
         
         
         InitAllTabs();
-        WelcomePanel();
+        if (GameManager.I.currentScreenType == StartScreenType.MainPanel)
+        {
+            MainPanel();
+        }
+        else if (GameManager.I.currentScreenType == StartScreenType.NewCarPanel)
+        {
+            NewCarPanel();
+        }
+        else if (GameManager.I.currentScreenType == StartScreenType.EditCarPanel)
+        {
+            NewCarPanel(GameManager.I.lastCarProps.saveId);
+        }
+        else
+        {
+            WelcomePanel();            
+        }
     }
 
 

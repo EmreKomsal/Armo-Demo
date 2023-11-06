@@ -1,11 +1,20 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum StartScreenType
+{
+    WelcomePanel,
+    MainPanel,
+    NewCarPanel,
+    EditCarPanel,
+}
+
 public class GameManager : SingletonNew<GameManager>
 {
     string carsPath = "Cars";
     public GameObject carPrefab;
     public SavedCarProps lastCarProps;
+    public StartScreenType currentScreenType = StartScreenType.WelcomePanel;
     
     void Start()
     {
