@@ -44,7 +44,7 @@ public class RotateCar : MonoBehaviour, IDragHandler
     public void Rotate(Vector3 currentPosition)
     {
         float rotationAmount = currentPosition.x - lastPosition.x;
-        objectToRotate.transform.Rotate(0, rotationAmount, 0);
+        objectToRotate.transform.Rotate(0, -rotationAmount, 0);
     }
 
     public void OnDrag(PointerEventData eventData)
