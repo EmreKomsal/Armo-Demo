@@ -29,6 +29,7 @@ public class UIControl : SingletonNew<UIControl>
     [Header("Garage Panel")]
     public GameObject garageCarExistParent;
     public GameObject garageNoCarExistParent;
+    public TMP_Text garageCarNameText;
     public Button garagePrevCarButton;
     public Button garageNextCarButton;
     public Button garageBackButton;
@@ -330,7 +331,9 @@ public class UIControl : SingletonNew<UIControl>
 
     public void SetGaragePreviewCar(int wantedIndex)
     {
-        PreviewController.I.SetPreviewOnlyCar(SaveCarController.I.GetCarProps(wantedIndex));
+        var carProps = SaveCarController.I.GetCarProps(wantedIndex);
+        garageCarNameText.text = carProps.name;
+        PreviewController.I.SetPreviewOnlyCar(carProps);
     }
 
     public void GarageNextCar()
