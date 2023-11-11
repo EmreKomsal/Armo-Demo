@@ -100,7 +100,7 @@ public class ARManager : MonoBehaviour
 
         if (menu_restartBtn != null)
         {
-            menu_restartBtn.onClick.AddListener(ARM_Home);
+            menu_restartBtn.onClick.AddListener(ARM_ReloadScene);
         }
 }
 
@@ -233,6 +233,11 @@ public class ARManager : MonoBehaviour
     {
         GameManager.I.currentScreenType = StartScreenType.NewCarPanel;
         SceneManager.LoadScene(0);
+    }
+
+    private void ARM_ReloadScene()
+    {
+        SceneManager.LoadScene(1);
     }
     #endregion
 }

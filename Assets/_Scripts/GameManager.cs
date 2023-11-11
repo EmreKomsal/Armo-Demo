@@ -70,15 +70,15 @@ public class GameManager : SingletonNew<GameManager>
         lastCarProps = newCarProps;
     }
     
-    public void LoadCarPrefab(Transform parent)
+    public void LoadCarPrefab(Transform parent, bool active)
     {
         if (carPrefab != null)
         {
             carPrefab.transform.SetParent(parent, false);
-            carPrefab.SetActive(true);
+            carPrefab.SetActive(active);
         }
 
     }
-
+  
 
 }

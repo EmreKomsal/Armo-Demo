@@ -161,7 +161,7 @@ public class ResizeOnDetection : MonoBehaviour
     public void SpawnCar()
     {
         Debug.Log("Hello");
-        gameManager.LoadCarPrefab(carHolder);
+        gameManager.LoadCarPrefab(carHolder, true);
         car = gameManager.carPrefab;
     }
 
