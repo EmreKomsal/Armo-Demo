@@ -26,7 +26,7 @@ public class ResizeOnDetection : MonoBehaviour
     private float timeMoving = 0f;
 
     float speed = 0.3f;
-    float speedMlp = 1f;
+    public float speedMlp = 1f;
     float holdTime = 0.2f;
 
     private void Start()
@@ -78,6 +78,11 @@ public class ResizeOnDetection : MonoBehaviour
     public string UpdateSpeed()
     {
         return ((speed * speedMlp * 3.6f) + " km/h");
+    }
+
+    public string UpdateFriction()
+    {
+        return ("%" + speedMlp);
     }
 
     public bool GetFinish() 

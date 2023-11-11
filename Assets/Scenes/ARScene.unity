@@ -767,7 +767,7 @@ GameObject:
   - component: {fileID: 359714356}
   - component: {fileID: 359714355}
   m_Layer: 0
-  m_Name: ImageTarget (1)
+  m_Name: ImageTargetIslak
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -965,6 +965,7 @@ MonoBehaviour:
   carHolder: {fileID: 121192438}
   finishHolder: {fileID: 2078274191}
   car: {fileID: 0}
+  speedMlp: 1.1
 --- !u!1 &472269323
 GameObject:
   m_ObjectHideFlags: 0
@@ -1197,8 +1198,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 607, y: 262}
+  m_AnchoredPosition: {x: 0, y: 91.887}
+  m_SizeDelta: {x: 607, y: 445.774}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &761931010
 MonoBehaviour:
@@ -1293,6 +1294,7 @@ MonoBehaviour:
   carHolder: {fileID: 2107029162}
   finishHolder: {fileID: 381694419}
   car: {fileID: 0}
+  speedMlp: 2
 --- !u!1 &823427151
 GameObject:
   m_ObjectHideFlags: 0
@@ -1306,7 +1308,7 @@ GameObject:
   - component: {fileID: 823427153}
   - component: {fileID: 823427152}
   m_Layer: 0
-  m_Name: ImageTarget (2)
+  m_Name: ImageTargetAsfalt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1604,7 +1606,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df12a807c9aa4f44f8e4775acf170227, type: 2}
+  - {fileID: 2100000, guid: 82e6f2f316188a340ad4ef8f1239a67a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1889,7 +1891,7 @@ GameObject:
   - component: {fileID: 933554087}
   - component: {fileID: 933554086}
   m_Layer: 0
-  m_Name: ImageTarget (3)
+  m_Name: ImageTargetBuz
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2391,7 +2393,7 @@ GameObject:
   - component: {fileID: 998593407}
   - component: {fileID: 998593410}
   m_Layer: 0
-  m_Name: ImageTarget
+  m_Name: ImageTargetToprak
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3080,7 +3082,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1242334959
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3840,7 +3842,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c409d54fe6a84df498636da16c518c81, type: 2}
+  - {fileID: 2100000, guid: eff9bd1fc3971e7499e63b512110dfef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4309,6 +4311,7 @@ MonoBehaviour:
   carHolder: {fileID: 2090265085}
   finishHolder: {fileID: 2073843043}
   car: {fileID: 0}
+  speedMlp: 1.3
 --- !u!1 &1866224915
 GameObject:
   m_ObjectHideFlags: 0
@@ -4739,7 +4742,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0cd803a01ccad4841b74b61ff49e8429, type: 2}
+  - {fileID: 2100000, guid: 968fec0a955030c44bfcae378855ed73, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4836,7 +4839,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3210693c16d0e9440b62dbc91f589f3c, type: 2}
+  - {fileID: 2100000, guid: d805d830c4023774cb6259aca09f431e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5056,6 +5059,7 @@ MonoBehaviour:
   carHolder: {fileID: 1866224916}
   finishHolder: {fileID: 2069043369}
   car: {fileID: 0}
+  speedMlp: 1.8
 --- !u!1 &2069043368
 GameObject:
   m_ObjectHideFlags: 0

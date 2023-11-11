@@ -200,12 +200,14 @@ public class ARManager : MonoBehaviour
             time = currentRoad.GetTimer();
             RaceMenu.SetActive(false);
             EndMenu.SetActive(true);
-            end_frictionText.text = "0.3";
+            end_frictionText.text = currentRoad.UpdateFriction();
             end_speedText.text = speedText.text;
             end_timeText.text = timerText.text;
+            
+            
             menu_speedText.text = speedText.text;
             menu_timeText.text = timerText.text;
-            end_frictionText.text = end_frictionText.text;
+            menu_frictionText.text = end_frictionText.text;
         }
     }
 
