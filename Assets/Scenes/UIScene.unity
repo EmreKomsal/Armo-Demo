@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12729266, g: 0.13414232, b: 0.12114291, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4222,7 +4222,7 @@ MonoBehaviour:
   nonSelectedBG: {fileID: 933451442}
   tabType: 1
   value: 0
-  selectedInfo: "Lastik \xF6mr\xFC: k\u0131sa, Yol tutu\u015Fu: Y\xFCksek."
+  selectedInfo: ": k\u0131sa, Yol tutu\u015Fu: Y\xFCksek.\u015Fu: Y\xFCksek."
 --- !u!1 &376932333
 GameObject:
   m_ObjectHideFlags: 0
@@ -12136,20 +12136,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb964e5069f8415a83f5b53874d87f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minSpeed: 0.1
+  minSpeed: 0.03
   maxSpeed: 1
   baseSpeedKaporta0: 0.3
   baseSpeedKaporta1: 0.4
-  baseSpeedKaporta2: 0.5
+  baseSpeedKaporta2: 0.6
   speedEffectLastik0: -0.05
   speedEffectLastik1: 0
   speedEffectLastik2: 0.05
-  speedEffectMotor0: 0.8
-  speedEffectMotor1: 1
-  speedEffectMotor2: 1.2
-  speedEffectKoltuk0: -0.15
+  speedEffectMotor0: 1.2
+  speedEffectMotor1: 0.8
+  speedEffectMotor2: 1
+  speedEffectKoltuk0: 0.15
   speedEffectKoltuk1: 0
-  speedEffectKoltuk2: 0.15
+  speedEffectKoltuk2: -0.15
   speedEffectRuzgarlik0: -0.1
   speedEffectRuzgarlik1: 0.1
   speedEffectRuzgarlik2: 0.2

@@ -3,24 +3,24 @@ using UnityEngine;
 
 public class PartEffectController : SingletonNew<PartEffectController>
 {
-    public float minSpeed = 0.1f;
+    public float minSpeed = 0.03f;
     public float maxSpeed = 1f;
     
     public float baseSpeedKaporta0 = 0.3f;
     public float baseSpeedKaporta1= 0.4f;
-    public float baseSpeedKaporta2= 0.5f;
+    public float baseSpeedKaporta2= 0.6f;
 
     public float speedEffectLastik0 = -0.05f;
     public float speedEffectLastik1 = 0.0f;
     public float speedEffectLastik2 = 0.05f;
 
-    public float speedEffectMotor0 = 0.8f;
-    public float speedEffectMotor1 = 1f;
-    public float speedEffectMotor2 = 1.2f;
+    public float speedEffectMotor0 = 1.2f;
+    public float speedEffectMotor1 = 0.8f;
+    public float speedEffectMotor2 = 1f;
 
-    public float speedEffectKoltuk0 = -0.15f;
+    public float speedEffectKoltuk0 = 0.15f;
     public float speedEffectKoltuk1 = 0.0f;
-    public float speedEffectKoltuk2 = 0.15f;
+    public float speedEffectKoltuk2 = -0.15f;
     
     
     public float speedEffectRuzgarlik0 = -0.1f;

@@ -167,6 +167,7 @@ public class ResizeOnDetection : MonoBehaviour
 
     public void StartCar()
     {
+        speed = PartEffectController.I.GetSpeed(gameManager.lastCarProps);
         isCarMoving = true;
     }
 
