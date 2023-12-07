@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -14,8 +15,17 @@ public class UIControl : SingletonNew<UIControl>
     public GameObject garagePanelParent;
     public GameObject playPanelParent;
     public GameObject newCarPanelParent;
+    public GameObject noNetworkPanel;
+    public GameObject tutorialPanel;
+    public GameObject loginScreen;
+    public GameObject registerScreen;
+    public GameObject successfulRegisterScreen;
+    public GameObject profilePanel;
 
-
+    public GameObject waitBg;
+    public Transform waitBgRotatingTransform;
+    public float waitBgRotateSpeed = 360f;
+    
     [Header("Welcome Panel")]
     public Button welcomeContinueButton;
 
@@ -24,6 +34,8 @@ public class UIControl : SingletonNew<UIControl>
     public Button mainNewCarButton;
     public Button mainPlayButton;
     public Button mainExitButton;
+    public Button mainProfileButton;
+    public TMP_Text mainProfileNameText;
 
 
     [Header("Garage Panel")]
@@ -71,6 +83,46 @@ public class UIControl : SingletonNew<UIControl>
     public TMP_Text newCarNameText;
     public TMP_InputField newCarNameChangePopUpInputField;
 
+
+
+    [Header("Tutorial Panel")]
+    public List<GameObject> tanitimPages;
+    public List<GameObject> tanitimPageIndicators;
+    public GameObject beginTanitimParent;
+    public GameObject betweenTanitimParent;
+    public GameObject endTanitimParent;
+    public Button beginTanitimButton;
+    public Button betweenTanitimButtonNext;
+    public Button betweenTanitimButtonPrev;
+    public Button endTanitimButton;
+    private bool didTanitimComplete = false;
+    private int tanitimStage = 0;
+
+
+    [Header("Login Screen")]
+    public TMP_InputField loginEmailInputField;
+    public TMP_InputField loginPasswordInputField;
+    public Button loginButton;
+    public Button switchToRegisterButton;
+
+    [Header("Register Screen")]
+    public TMP_InputField registerNameInputField;
+    public TMP_InputField registerEmailInputField;
+    public TMP_InputField registerPasswordInputField;
+    public TMP_InputField registerRefInputField;
+    public Button switchToLoginButton;
+    public Button registerButton;
+
+    [Header("Successful Register Screen")]
+    public Button successfulRegisterOkButton;
+
+    [Header("Profile Panel")]
+    public Button profileMainMenuButton;
+    public Button profileLogoutButton;
+    public TMP_Text profileNameText;
+    public TMP_Text profileMailText;
+    public TMP_Text profileUidText;
+    
     public List<PropertiesTableTab> tableTabs;
     private Dictionary<PropertiesTableTabType, PropertiesTableTab> tabTypesToTabs =
         new Dictionary<PropertiesTableTabType, PropertiesTableTab>();
@@ -85,6 +137,16 @@ public class UIControl : SingletonNew<UIControl>
     private int lastTabId = 0;
     private bool isGarage = false;
     private float garageSpeed = 0f;
+    private bool internetReachable = true;
+    private bool waitBgActive = false;
+
+
+    public void SetWaitBG(bool to)
+    {
+        waitBg.SetActive(to);
+        waitBgRotatingTransform.localRotation = Quaternion.identity;
+        waitBgActive = to;
+    }
     
     private void Start()
     {
@@ -128,29 +190,190 @@ public class UIControl : SingletonNew<UIControl>
         newCarTogglePartButton.onClick.AddListener(NewCarToggleCar);
         newCarToggleCarButton.onClick.AddListener(NewCarTogglePart);
         
+        beginTanitimButton.onClick.AddListener(NextTanitimPanel);
+        betweenTanitimButtonNext.onClick.AddListener(NextTanitimPanel);
+        betweenTanitimButtonPrev.onClick.AddListener(PreviousTanitimPanel);
+        endTanitimButton.onClick.AddListener(EndTanitim);
+
+        loginButton.onClick.AddListener(Login);
         
         InitAllTabs();
-        if (GameManager.I.currentScreenType == StartScreenType.MainPanel)
+
+        CheckInternet();
+        if (internetReachable)
         {
-            MainPanel();
+            InitScreen();            
         }
-        else if (GameManager.I.currentScreenType == StartScreenType.NewCarPanel)
+        
+    }
+
+    public void InitScreen()
+    {
+        didTanitimComplete = PlayerPrefs.GetInt("didTanitimComplete", 0) == 1;
+
+        if (!didTanitimComplete)
         {
-            NewCarPanel();
+            TutorialStart();
+            return;
         }
-        else if (GameManager.I.currentScreenType == StartScreenType.EditCarPanel)
+
+        if (AuthController.I.auth.CurrentUser != null)
         {
-            NewCarPanel(GameManager.I.lastCarProps.saveId);
+            if (GameManager.I.currentScreenType == StartScreenType.MainPanel)
+            {
+                MainPanel();
+            }
+            else if (GameManager.I.currentScreenType == StartScreenType.NewCarPanel)
+            {
+                NewCarPanel();
+            }
+            else if (GameManager.I.currentScreenType == StartScreenType.EditCarPanel)
+            {
+                NewCarPanel(GameManager.I.lastCarProps.saveId);
+            }
+            else
+            {
+                WelcomePanel();            
+            }
         }
         else
         {
-            WelcomePanel();            
+            LoginScreen();
         }
     }
 
+    public void LoginScreen()
+    {
+        CloseAllParents();
+        loginScreen.SetActive(true);
+        loginEmailInputField.text = "";
+        loginPasswordInputField.text = "";
+    }
 
+    public void Login()
+    {
+        SetWaitBG(true);
+        AuthController.I.LoginAttempt(loginEmailInputField.text, loginPasswordInputField.text, HandleLogin);
+    }
+
+    public void HandleLogin(Task<Firebase.Auth.AuthResult> task)
+    {
+        if (task.IsCompleted)
+        {
+            if (task.Result.User != null && task.Result.User.IsValid())
+            {
+                MainPanel();
+            }
+            else
+            {
+                LoginScreen();
+            }
+            SetWaitBG(false);
+        }
+    }
+    
+    public void RegisterScreen()
+    {
+        CloseAllParents();
+        registerScreen.SetActive(true);
+        registerNameInputField.text = "";
+        registerEmailInputField.text = "";
+        registerPasswordInputField.text = "";
+        registerRefInputField.text = "";
+    }
+    
+    public void TutorialStart()
+    {
+        CloseAllParents();
+        tutorialPanel.SetActive(true);
+        SetTutorialScreen();
+    }
+
+    public void SetTutorialScreen()
+    {
+        if (tanitimStage == 0)
+        {
+            beginTanitimParent.SetActive(true);
+            betweenTanitimParent.SetActive(false);
+            endTanitimParent.SetActive(false);
+        }
+        else if (tanitimStage == 4)
+        {
+            beginTanitimParent.SetActive(false);
+            betweenTanitimParent.SetActive(false);
+            endTanitimParent.SetActive(true);
+        }
+        else
+        {
+            beginTanitimParent.SetActive(false);
+            betweenTanitimParent.SetActive(true);
+            endTanitimParent.SetActive(false);
+        }
+
+        foreach (var tanitimPage in tanitimPages)
+        {
+            tanitimPage.SetActive(false);
+        }
+
+        foreach (var tanitimPageIndicator in tanitimPageIndicators)
+        {
+            tanitimPageIndicator.SetActive(false);
+        }
+        
+        tanitimPages[tanitimStage].SetActive(true);
+        tanitimPageIndicators[tanitimStage].SetActive(true);
+    }
+
+    public void NextTanitimPanel()
+    {
+        tanitimStage = Mathf.Clamp(tanitimStage + 1, 0, 4);
+        SetTutorialScreen();
+    }
+
+    public void PreviousTanitimPanel()
+    {
+        tanitimStage = Mathf.Clamp(tanitimStage - 1, 0, 4);
+        SetTutorialScreen();
+    }
+
+    public void EndTanitim()
+    {
+        didTanitimComplete = true;
+        PlayerPrefs.SetInt("didTanitimComplete", 1);
+        InitScreen();
+    }
+    
+    public void NoInternetPanel()
+    {
+        CloseAllParents();
+        noNetworkPanel.SetActive(true);
+        SetWaitBG(false);
+    }
+
+    public void CheckInternet()
+    {
+        if (internetReachable && Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            internetReachable = false;
+            NoInternetPanel();
+        }
+        else if (!internetReachable && Application.internetReachability != NetworkReachability.NotReachable)
+        {
+            internetReachable = true;
+            InitScreen();
+        }
+    }
+    
     public void Update()
     {
+        CheckInternet();
+        if (waitBgActive)
+        {
+            waitBgRotatingTransform.localRotation =
+                Quaternion.AngleAxis(waitBgRotateSpeed * Time.deltaTime, Vector3.forward) *
+                waitBgRotatingTransform.localRotation;
+        }
+        
         if (isGarage)
         {
             garageStatsSpeedFill.fillAmount = Mathf.Lerp(garageStatsSpeedFill.fillAmount, targetSpeedFill,
@@ -232,7 +455,7 @@ public class UIControl : SingletonNew<UIControl>
     public void GaragePlay()
     {
         GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(garageCarIndex));
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
 
     public void PlayBack()
@@ -248,7 +471,7 @@ public class UIControl : SingletonNew<UIControl>
     public void PlayPlay()
     {
         GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(playCarIndex));
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
 
 
@@ -469,6 +692,12 @@ public class UIControl : SingletonNew<UIControl>
         garagePanelParent.SetActive(false);
         playPanelParent.SetActive(false);
         newCarPanelParent.SetActive(false);
+        noNetworkPanel.SetActive(false);
+        tutorialPanel.SetActive(false);
+        loginScreen.SetActive(false);
+        registerScreen.SetActive(false);
+        successfulRegisterScreen.SetActive(false);
+        profilePanel.SetActive(false);
     }
     
     public PropertiesTableTab GetTab(PropertiesTableTabType wantedType)

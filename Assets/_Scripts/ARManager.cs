@@ -169,7 +169,7 @@ public class ARManager : MonoBehaviour
     {
         Debug.Log("ARM_Home called.");
         GameManager.I.currentScreenType = StartScreenType.MainPanel;
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
 
@@ -228,18 +228,18 @@ public class ARManager : MonoBehaviour
     private void ARM_LoadCustom() 
     {
         GameManager.I.currentScreenType = StartScreenType.EditCarPanel;
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     private void ARM_NewCar() 
     {
         GameManager.I.currentScreenType = StartScreenType.NewCarPanel;
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     private void ARM_ReloadScene()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
     #endregion
 }

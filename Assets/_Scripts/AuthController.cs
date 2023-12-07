@@ -7,14 +7,15 @@ using Firebase.Extensions;
 using Firebase.Firestore;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = System.Object;
 
 public class AuthController : SingletonNew<AuthController>
 {
-    protected Firebase.Auth.FirebaseAuth auth;
-    protected Firebase.Auth.FirebaseAuth otherAuth;
-    protected Firebase.Firestore.FirebaseFirestore dbRef;
-    protected Dictionary<string, Firebase.Auth.FirebaseUser> userByAuth =
+    public Firebase.Auth.FirebaseAuth auth;
+    public Firebase.Auth.FirebaseAuth otherAuth;
+    public Firebase.Firestore.FirebaseFirestore dbRef;
+    public Dictionary<string, Firebase.Auth.FirebaseUser> userByAuth =
         new Dictionary<string, Firebase.Auth.FirebaseUser>();
     
     public string email = "";
@@ -39,6 +40,12 @@ public class AuthController : SingletonNew<AuthController>
     Firebase.DependencyStatus dependencyStatus = Firebase.DependencyStatus.UnavailableOther;
     
     public virtual void Start() {
+        if (FindObjectsOfType<AuthController>().Length > 1)
+        {
+            Destroy(this);
+            return;
+        }
+        DontDestroyOnLoad(gameObject);
         Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
             dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
@@ -71,6 +78,7 @@ public class AuthController : SingletonNew<AuthController>
             }
         }
         AuthStateChanged(this, null);
+        SceneManager.LoadScene(1);
     }
     
     void OnDestroy() {
@@ -302,7 +310,18 @@ public class AuthController : SingletonNew<AuthController>
             }
         });
     }
-    
+
+    public Task LoginAttempt(string newMail, string newPassword, Action<Task<Firebase.Auth.AuthResult>> onComplete)
+    {
+        if (signInAndFetchProfile) {
+            return auth.SignInAndRetrieveDataWithCredentialAsync(
+                Firebase.Auth.EmailAuthProvider.GetCredential(newMail, newPassword)).ContinueWithOnMainThread(
+                onComplete);
+        } else {
+            return auth.SignInWithEmailAndPasswordAsync(newMail, newPassword)
+                .ContinueWithOnMainThread(onComplete);
+        }
+    }
     
     [Button]
     public Task SigninWithEmailAsync() {
