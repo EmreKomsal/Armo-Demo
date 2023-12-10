@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Sirenix.OdinInspector;
@@ -6,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 
 public class UIControl : SingletonNew<UIControl>
 {
@@ -102,6 +104,9 @@ public class UIControl : SingletonNew<UIControl>
     [Header("Login Screen")]
     public TMP_InputField loginEmailInputField;
     public TMP_InputField loginPasswordInputField;
+    public GameObject loginErrorParent;
+    public TMP_Text loginErrorText;
+    public float loginErrorStayDuration = 2.5f;
     public Button loginButton;
     public Button switchToRegisterButton;
 
@@ -110,6 +115,9 @@ public class UIControl : SingletonNew<UIControl>
     public TMP_InputField registerEmailInputField;
     public TMP_InputField registerPasswordInputField;
     public TMP_InputField registerRefInputField;
+    public GameObject registerErrorParent;
+    public TMP_Text registerErrorText;
+    public float registerErrorStayDuration = 2.5f;
     public Button switchToLoginButton;
     public Button registerButton;
 
@@ -196,6 +204,17 @@ public class UIControl : SingletonNew<UIControl>
         endTanitimButton.onClick.AddListener(EndTanitim);
 
         loginButton.onClick.AddListener(Login);
+        switchToRegisterButton.onClick.AddListener(RegisterScreen);
+        
+        switchToLoginButton.onClick.AddListener(LoginScreen);
+        registerButton.onClick.AddListener(Register);
+        
+        successfulRegisterOkButton.onClick.AddListener(MainPanel);
+        
+        mainProfileButton.onClick.AddListener(ProfileScreen);
+        
+        profileMainMenuButton.onClick.AddListener(MainPanel);
+        profileLogoutButton.onClick.AddListener(Logout);
         
         InitAllTabs();
 
@@ -207,6 +226,61 @@ public class UIControl : SingletonNew<UIControl>
         
     }
 
+
+    public void Logout()
+    {
+        AuthController.I.auth.SignOut();
+        LoginScreen();
+    }
+    
+    public void ProfileScreen()
+    {
+        CloseAllParents();
+        profileMailText.text = AuthController.I.auth.CurrentUser.Email;
+        profileNameText.text = AuthController.I.auth.CurrentUser.DisplayName;
+        profileUidText.text = AuthController.I.auth.CurrentUser.UserId;
+        profilePanel.SetActive(true);
+    }
+
+    private Coroutine registerErrorRoutine;
+    public void RegisterError(string newError)
+    {
+        registerErrorParent.SetActive(false);
+        registerErrorText.text = newError;
+        registerErrorParent.SetActive(true);
+        if (registerErrorRoutine != null)
+        {
+            StopCoroutine(registerErrorRoutine);
+        }
+        registerErrorRoutine = StartCoroutine(RegisterErrorRoutine());
+    }
+
+    private IEnumerator RegisterErrorRoutine()
+    {
+        yield return new WaitForSeconds(registerErrorStayDuration);
+        registerErrorParent.SetActive(false);
+    }
+    
+    
+    private Coroutine loginErrorRoutine;
+    public void LoginError(string newError)
+    {
+        loginErrorParent.SetActive(false);
+        loginErrorText.text = newError;
+        loginErrorParent.SetActive(true);
+        if (loginErrorRoutine != null)
+        {
+            StopCoroutine(loginErrorRoutine);
+        }
+        loginErrorRoutine = StartCoroutine(LoginErrorRoutine());
+    }
+
+    private IEnumerator LoginErrorRoutine()
+    {
+        yield return new WaitForSeconds(loginErrorStayDuration);
+        loginErrorParent.SetActive(false);
+    }
+    
     public void InitScreen()
     {
         didTanitimComplete = PlayerPrefs.GetInt("didTanitimComplete", 0) == 1;
@@ -219,6 +293,12 @@ public class UIControl : SingletonNew<UIControl>
 
         if (AuthController.I.auth.CurrentUser != null)
         {
+            if (!AuthController.I.DidLoadCars)
+            {
+                MainPanel();
+                return;
+            }
+            
             if (GameManager.I.currentScreenType == StartScreenType.MainPanel)
             {
                 MainPanel();
@@ -242,6 +322,7 @@ public class UIControl : SingletonNew<UIControl>
         }
     }
 
+
     public void LoginScreen()
     {
         CloseAllParents();
@@ -252,13 +333,53 @@ public class UIControl : SingletonNew<UIControl>
 
     public void Login()
     {
+        if (String.IsNullOrWhiteSpace(loginEmailInputField.text))
+        {
+            LoginError("Email boş olamaz.");
+            LoginScreen();
+            return;
+        }
+        if (String.IsNullOrWhiteSpace(loginPasswordInputField.text))
+        {
+            LoginError("Şifre boş olamaz.");
+            LoginScreen();
+            return;
+        }
+
+        
         SetWaitBG(true);
         AuthController.I.LoginAttempt(loginEmailInputField.text, loginPasswordInputField.text, HandleLogin);
     }
 
     public void HandleLogin(Task<Firebase.Auth.AuthResult> task)
     {
-        if (task.IsCompleted)
+        if (task.IsCanceled)
+        {
+            LoginError("Bir şeyler ters gitti.");
+            SetWaitBG(false);
+            LoginScreen();            
+        }
+        else if (task.IsFaulted)
+        {
+            var errMsg = "Giriş yapma başarısız:\n";
+            if (task.Exception != null)
+            {
+                foreach (Exception exception in task.Exception.Flatten().InnerExceptions) {
+                    string authErrorCode = "";
+                    Firebase.FirebaseException firebaseEx = exception as Firebase.FirebaseException;
+                    if (firebaseEx != null) {
+                        authErrorCode = String.Format("AuthError.{0}: ",
+                            ((Firebase.Auth.AuthError)firebaseEx.ErrorCode).ToString());
+                    }
+
+                    errMsg += authErrorCode + exception.ToString() + "\n";
+                }
+            }
+            LoginError(errMsg);
+            SetWaitBG(false);
+            LoginScreen();
+        }
+        else if (task.IsCompleted)
         {
             if (task.Result.User != null && task.Result.User.IsValid())
             {
@@ -280,6 +401,115 @@ public class UIControl : SingletonNew<UIControl>
         registerEmailInputField.text = "";
         registerPasswordInputField.text = "";
         registerRefInputField.text = "";
+    }
+
+    public void Register()
+    {
+        if (String.IsNullOrWhiteSpace(registerEmailInputField.text))
+        {
+            RegisterScreen();
+            RegisterError("Lütfen geçerli bir email giriniz.");
+            return;
+        }
+        if (String.IsNullOrWhiteSpace(registerPasswordInputField.text))
+        {
+            RegisterScreen();
+            RegisterError("Lütfen geçerli bir şifre giriniz.");
+            return;
+        }
+
+        if (registerPasswordInputField.text.Length < 6 || registerPasswordInputField.text.Length >= 15)
+        {
+            RegisterScreen();
+            RegisterError("Şifre 6-14 karakter arasında olmalıdır.");
+            return;
+        }
+        if (String.IsNullOrWhiteSpace(registerNameInputField.text))
+        {
+            RegisterScreen();
+            RegisterError("Lütfen geçerli bir isim giriniz.");
+            return;
+        }
+        if (String.IsNullOrWhiteSpace(registerRefInputField.text))
+        {
+            RegisterScreen();
+            RegisterError("Lütfen geçerli bir kod giriniz.");
+            return;
+        }
+        SetWaitBG(true);
+        AuthController.I.RegisterAttempt(registerEmailInputField.text, registerPasswordInputField.text,
+            registerNameInputField.text, registerRefInputField.text);
+    }
+
+    public void RegisterCanceled(string newError = "")
+    {
+        SetWaitBG(false);
+        RegisterScreen();
+        if (!String.IsNullOrWhiteSpace(newError))
+        {
+            RegisterError(newError);
+        }
+    }
+
+    public void RegisterFaulted(string newError = "")
+    {
+        SetWaitBG(false);
+        RegisterScreen();
+        if (!String.IsNullOrWhiteSpace(newError))
+        {
+            RegisterError(newError);
+        }
+    }
+
+    public void RegisterEnd()
+    {
+        SuccessfullyRegisterScreen();
+        SetWaitBG(false);
+    }
+
+    public void ToMainPanelFirstTime()
+    {
+        AuthController.I.LoadCars(LoadCarsEnd);
+    }
+    
+    public void LoadCarsEnd(Task task)
+    {
+        if (task.IsCanceled)
+        {
+            AuthController.I.LoadCars(LoadCarsEnd);
+        }
+        else if (task.IsFaulted)
+        {
+            AuthController.I.LoadCars(LoadCarsEnd);
+        }
+        else if (task.IsCompleted)
+        {
+            SetWaitBG(false);
+            MainPanel();
+        }
+    }
+
+    public void SuccessfullyRegisterScreen()
+    {
+        CloseAllParents();
+        successfulRegisterScreen.SetActive(true);
+    }
+    
+    public void HandleUserProfileUpdate(Task task)
+    {
+        if (task.IsCanceled)
+        {
+            RegisterCanceled();
+        }
+        else if (task.IsFaulted)
+        {
+            RegisterFaulted();
+        }
+        else if (task.IsCompleted)
+        {
+            MainPanel();
+            SetWaitBG(false);
+        }
     }
     
     public void TutorialStart()
@@ -429,6 +659,10 @@ public class UIControl : SingletonNew<UIControl>
     public void GarageDelete()
     {
         SaveCarController.I.DeleteCar(garageCarIndex);
+    }
+
+    public void DeleteComplete()
+    {
         if (SaveCarController.I.GetCarCount() == 0)
         {
             garageNoCarExistParent.SetActive(true);
@@ -445,7 +679,7 @@ public class UIControl : SingletonNew<UIControl>
             SetGaragePreviewCar(garageCarIndex);
         }
     }
-
+    
     public void GarageEdit()
     {
         NewCarPanel(garageCarIndex);
@@ -490,7 +724,7 @@ public class UIControl : SingletonNew<UIControl>
         {
             SaveCarController.I.SaveCar(editedCar);
         }
-        MainPanel();
+        // MainPanel();
     }
     
     public void NewCarNameChangeOpen()
@@ -521,7 +755,12 @@ public class UIControl : SingletonNew<UIControl>
         isGarage = false;
         CloseAllParents();
         mainPanelParent.SetActive(true);
+        mainProfileNameText.text = AuthController.I.auth.CurrentUser.DisplayName;
         PreviewController.I.DeactivatePreview();
+        if (!AuthController.I.DidLoadCars)
+        {
+            ToMainPanelFirstTime();
+        }
     }
     
     public void GaragePanel()

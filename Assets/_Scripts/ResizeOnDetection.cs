@@ -12,6 +12,7 @@ public class ResizeOnDetection : MonoBehaviour
     public float maxSize = 5.0f; // The maximum size the road can be resized to
     public float minSize = 0.5f; // The minimum size the road can be resized to
 
+    public PartEffectController.GroundType groundType;
 
     public Transform carHolder;
 
@@ -29,10 +30,23 @@ public class ResizeOnDetection : MonoBehaviour
     public float speedMlp = 1f;
     float holdTime = 0.2f;
 
+    public float lastSize;
+
+    public float GetTimeMoving()
+    {
+        return timeMoving;
+    }
+
+    public float GetSpeed()
+    {
+        return lastSpeed;
+    }
+    
     private void Start()
     {
         gameManager = GameObject.FindObjectOfType<GameManager>();
         ARManager = GameObject.FindAnyObjectByType<ARManager>();
+        lastSize = initialSize;
         if (gameManager == null)
         {
             Debug.LogError("GameManager cannot find");
@@ -75,9 +89,16 @@ public class ResizeOnDetection : MonoBehaviour
         return timeMoving;
     }
 
+    private float lastSpeed = 0;
+    
+    
+    
     public string UpdateSpeed()
     {
-        return ((speed * speedMlp * 3.6f) + " km/h");
+        var projectedSpeed = Mathf.Lerp(PartEffectController.I.shownSpeedRange.x, PartEffectController.I.shownSpeedRange.y,speed - PartEffectController.I.GetMinMaxSpeed().x) /
+                             (PartEffectController.I.GetMinMaxSpeed().y - PartEffectController.I.GetMinMaxSpeed().x);
+        lastSpeed = projectedSpeed;
+        return (projectedSpeed.ToString("F")+ " km/h");
     }
 
     public string UpdateFriction()
@@ -133,7 +154,7 @@ public class ResizeOnDetection : MonoBehaviour
         {
             // Clamp the size within the specified range
             size = Mathf.Clamp(size, minSize, maxSize);
-
+            lastSize = size;
             // Scale the road object to the new size
             transform.localScale = new Vector3(size, 1.0f, size);
         }
@@ -170,9 +191,12 @@ public class ResizeOnDetection : MonoBehaviour
         car = gameManager.carPrefab;
     }
 
+    private float curScaleMlpSpeed = 1f;
+    
     public void StartCar()
     {
-        speed = PartEffectController.I.GetSpeed(gameManager.lastCarProps);
+        speed = PartEffectController.I.GetSpeed(gameManager.lastCarProps, groundType);
+        curScaleMlpSpeed = lastSize / initialSize;
         isCarMoving = true;
     }
 
@@ -185,7 +209,7 @@ public class ResizeOnDetection : MonoBehaviour
         }
 
         // Move car towards the finish point
-        car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * Time.deltaTime);
+        car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * curScaleMlpSpeed * Time.deltaTime);
 
         // Check if the car has reached the finish point within a tolerance
         if (Vector3.Distance(car.transform.position, finishHolder.position) < 0.1f)

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18018535, g: 0.22559482, b: 0.30677685, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -568,19 +568,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 340117744}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1611629141}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &340117744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -767,7 +755,7 @@ GameObject:
   - component: {fileID: 359714356}
   - component: {fileID: 359714355}
   m_Layer: 0
-  m_Name: ImageTargetIslak
+  m_Name: ImageTargetBuz
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -879,6 +867,83 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &379981702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 379981703}
+  - component: {fileID: 379981705}
+  - component: {fileID: 379981704}
+  m_Layer: 5
+  m_Name: WaitBG
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &379981703
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379981702}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 504717996}
+  m_Father: {fileID: 1034728497}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &379981704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379981702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.624, g: 0.624, b: 0.624, a: 0.5882353}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &379981705
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379981702}
+  m_CullTransparentMesh: 1
 --- !u!1 &381694418
 GameObject:
   m_ObjectHideFlags: 0
@@ -962,10 +1027,12 @@ MonoBehaviour:
   initialSize: 1
   maxSize: 5
   minSize: 0.5
+  groundType: 2
   carHolder: {fileID: 121192438}
   finishHolder: {fileID: 2078274191}
   car: {fileID: 0}
   speedMlp: 1
+  lastSize: 1
 --- !u!1 &472269323
 GameObject:
   m_ObjectHideFlags: 0
@@ -1163,6 +1230,82 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 478628958}
   m_CullTransparentMesh: 1
+--- !u!1 &504717995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 504717996}
+  - component: {fileID: 504717998}
+  - component: {fileID: 504717997}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &504717996
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504717995}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 379981703}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 120, y: 120}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &504717997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504717995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 3e8b9e082d697174abdc3eed3d26a170, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &504717998
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504717995}
+  m_CullTransparentMesh: 1
 --- !u!1 &761931008
 GameObject:
   m_ObjectHideFlags: 0
@@ -1291,10 +1434,12 @@ MonoBehaviour:
   initialSize: 1
   maxSize: 5
   minSize: 0.5
+  groundType: 1
   carHolder: {fileID: 2107029162}
   finishHolder: {fileID: 381694419}
   car: {fileID: 0}
   speedMlp: 1
+  lastSize: 1
 --- !u!1 &823427151
 GameObject:
   m_ObjectHideFlags: 0
@@ -1891,7 +2036,7 @@ GameObject:
   - component: {fileID: 933554087}
   - component: {fileID: 933554086}
   m_Layer: 0
-  m_Name: ImageTargetBuz
+  m_Name: ImageTargetMicir
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2603,6 +2748,7 @@ RectTransform:
   - {fileID: 1441397836}
   - {fileID: 1793955240}
   - {fileID: 1508467885}
+  - {fileID: 379981703}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3842,7 +3988,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: eff9bd1fc3971e7499e63b512110dfef, type: 2}
+  - {fileID: 2100000, guid: 56e0c031a95a5fc4999bee6209ba71bf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4226,6 +4372,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InfoMenu: {fileID: 1611629141}
+  infoBackButton: {fileID: 340117743}
   PistMenu: {fileID: 839288655}
   ilerleBtn: {fileID: 903640654}
   pist_bigger: {fileID: 266614962}
@@ -4252,10 +4399,18 @@ MonoBehaviour:
   menu_customBtn: {fileID: 994508246}
   menu_newcarBtn: {fileID: 1150036104}
   menu_restartBtn: {fileID: 1897065114}
+  allRoads:
+  - {fileID: 806832131}
+  - {fileID: 1862576388}
+  - {fileID: 2059384389}
+  - {fileID: 397437306}
   currentRoad: {fileID: 0}
   initialSize: 1
   maxSize: 5
   minSize: 0.5
+  waitBg: {fileID: 379981702}
+  waitBgRotatingTransform: {fileID: 504717996}
+  waitBgRotateSpeed: 360
 --- !u!1 &1862576386
 GameObject:
   m_ObjectHideFlags: 0
@@ -4308,10 +4463,12 @@ MonoBehaviour:
   initialSize: 1
   maxSize: 5
   minSize: 0.5
+  groundType: 4
   carHolder: {fileID: 2090265085}
   finishHolder: {fileID: 2073843043}
   car: {fileID: 0}
   speedMlp: 1
+  lastSize: 1
 --- !u!1 &1866224915
 GameObject:
   m_ObjectHideFlags: 0
@@ -4395,7 +4552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4742,7 +4899,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 968fec0a955030c44bfcae378855ed73, type: 2}
+  - {fileID: 2100000, guid: c34307182ac2cb948a6c9fc586756e14, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5056,10 +5213,12 @@ MonoBehaviour:
   initialSize: 1
   maxSize: 5
   minSize: 0.5
+  groundType: 3
   carHolder: {fileID: 1866224916}
   finishHolder: {fileID: 2069043369}
   car: {fileID: 0}
   speedMlp: 1
+  lastSize: 1
 --- !u!1 &2069043368
 GameObject:
   m_ObjectHideFlags: 0

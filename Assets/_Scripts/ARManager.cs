@@ -1,14 +1,18 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Threading.Tasks;
+using Firebase.Firestore;
 using TMPro;
 
-public class ARManager : MonoBehaviour
+public class ARManager : SingletonNew<ARManager>
 {
     [Header("Info Components")]
     public GameObject InfoMenu;
+    public Button infoBackButton;
 
     [Header("PistSize Components")]
     public GameObject PistMenu;
@@ -46,7 +50,6 @@ public class ARManager : MonoBehaviour
     public Button menu_customBtn;
     public Button menu_newcarBtn;
     public Button menu_restartBtn;
-
 
     void Start()
     {
@@ -102,6 +105,8 @@ public class ARManager : MonoBehaviour
         {
             menu_restartBtn.onClick.AddListener(ARM_ReloadScene);
         }
+        
+        infoBackButton.onClick.AddListener(ARM_Home);
 }
 
     public void LateUpdate()
@@ -115,6 +120,8 @@ public class ARManager : MonoBehaviour
     }
 
     #region RoadResize
+
+    public List<ResizeOnDetection> allRoads;
 
     [Header("PistSize Varibeles")]
     public ResizeOnDetection currentRoad = null;
@@ -139,12 +146,14 @@ public class ARManager : MonoBehaviour
 
     public void ARM_MakeRoadLonger()
     {
-        pistSize.text = currentRoad.MakeRoadLonger().ToString();
+        currentRoad.MakeRoadLonger();
+        pistSize.text = currentRoad.lastSize.ToString("F1");
     }
 
     public void ARM_MakeRoadShorter()
     {
-        pistSize.text = currentRoad.MakeRoadShorter().ToString();
+        currentRoad.MakeRoadShorter();
+        pistSize.text = currentRoad.lastSize.ToString("F1");
     }
 
     public void ARM_SpawnCar()
@@ -167,7 +176,6 @@ public class ARManager : MonoBehaviour
 
     public void ARM_Home()
     {
-        Debug.Log("ARM_Home called.");
         GameManager.I.currentScreenType = StartScreenType.MainPanel;
         SceneManager.LoadScene(1);
     }
@@ -214,14 +222,60 @@ public class ARManager : MonoBehaviour
     #endregion
 
     #region EndRegion
+    private bool waitBgActive = false;
+    public GameObject waitBg;
+    public Transform waitBgRotatingTransform;
+    public float waitBgRotateSpeed = 360f;
+    public void SetWaitBG(bool to)
+    {
+        waitBg.SetActive(to);
+        waitBgRotatingTransform.localRotation = Quaternion.identity;
+        waitBgActive = to;
+    }
+
+    private void Update()
+    {
+        if (waitBgActive)
+        {
+            waitBgRotatingTransform.localRotation =
+                Quaternion.AngleAxis(waitBgRotateSpeed * Time.deltaTime, Vector3.forward) *
+                waitBgRotatingTransform.localRotation;
+        }
+    }
 
     private void ARM_LoadMenu() 
     {
-        Debug.Log("ARM_Load called.");
-        EndMenu.SetActive(false);
-        LastMenu.SetActive(true);
+        SetWaitBG(true);
+        AuthController.I.SendResult(GameManager.I.lastCarProps, currentRoad.groundType, currentRoad.GetTimeMoving(), currentRoad.GetSpeed(), LoadMenu);
     }
 
+    public void LoadMenu(Task<DocumentReference> task)
+    {
+        if (task.IsCanceled)
+        {
+            SetWaitBG(false);
+            EndMenu.SetActive(false);
+            LastMenu.SetActive(true);
+            return;
+        }
+
+        if (task.IsFaulted)
+        {
+            SetWaitBG(false);
+            EndMenu.SetActive(false);
+            LastMenu.SetActive(true);
+            return;
+        }
+
+        if (task.IsCompleted)
+        {
+            SetWaitBG(false);
+            EndMenu.SetActive(false);
+            LastMenu.SetActive(true);
+            return;
+        }
+    }
+    
     #endregion
 
     #region MenuRegion

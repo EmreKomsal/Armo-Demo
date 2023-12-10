@@ -27,6 +27,8 @@ public class AuthController : SingletonNew<AuthController>
     public string customParameterValue1 = "";
     public string customParameterKey2 = "";
     public string customParameterValue2 = "";
+
+    public bool isStudent = true;
     
     protected bool signInAndFetchProfile = false;
     private bool fetchingToken = false;
@@ -79,6 +81,42 @@ public class AuthController : SingletonNew<AuthController>
         }
         AuthStateChanged(this, null);
         SceneManager.LoadScene(1);
+    }
+
+    public void SendResult(SavedCarProps newProps, PartEffectController.GroundType newGroundType, float duration, float speed, Action<Task<DocumentReference>> onComplete)
+    {
+        if (!isStudent)
+        {
+            return;
+        }
+
+        var combinationMap = new Dictionary<string, object>
+        {
+            {"bodywork", newProps.kaportaId},
+            {"engine", newProps.motorId},
+            {"road", (int)newGroundType},
+            {"seat", newProps.koltukId},
+            {"spoiler", newProps.ruzgarlikId},
+            {"tire", newProps.lastikId},
+        };
+
+        var outcomeMap = new Dictionary<string, object>
+        {
+            {"consumption", 0},
+            {"duration", duration},
+            {"friction", 0},
+            {"speed", speed},
+        };
+
+        Dictionary<string, object> dict = new Dictionary<string, object>
+        {
+            {"appversion", Application.version},
+            {"combination", combinationMap},
+            {"outcome", outcomeMap},
+            {"timestamp", Timestamp.GetCurrentTimestamp()},
+            {"userid", auth.CurrentUser.UserId},
+        };
+        dbRef.Collection("Results").AddAsync(dict).ContinueWithOnMainThread(onComplete);
     }
     
     void OnDestroy() {
@@ -244,6 +282,281 @@ public class AuthController : SingletonNew<AuthController>
     }
     
     
+    public Task RegisterAttempt(string newMail, string newPassword, string newName, string newRef)
+    {
+        dbRef = FirebaseFirestore.DefaultInstance;
+        var query = dbRef.Collection("Groups").WhereEqualTo("referral", newRef);
+        var snapshot = query.GetSnapshotAsync();
+        return snapshot.ContinueWithOnMainThread((task =>
+        {
+            if (task.IsCanceled)
+            {
+                UIControl.I.RegisterCanceled("Referans kodu bulunamadı.");
+                return task;
+            }
+            if (task.IsFaulted)
+            {
+                UIControl.I.RegisterFaulted("Referans kodu bulunamadı.");
+                return task;
+            }
+            if (task.Result.Count != 1)
+            {
+                UIControl.I.RegisterFaulted("Referans kodu bulunamadı.");
+                return task;
+            }
+            if (!task.Result[0].GetValue<bool>("isOpen"))
+            {
+                UIControl.I.RegisterFaulted("Bu gruba kayıt şu an açık değildir.");
+                return task;
+            }
+            if (task.Result[0].GetValue<int>("maxMemberCount") <= task.Result[0].GetValue<List<string>>("members").Count)
+            {
+                UIControl.I.RegisterFaulted("Bu grup maksimum sayıya ulaşmıştır.");
+                return task;
+            }
+
+
+            return auth.CreateUserWithEmailAndPasswordAsync(newMail, newPassword).ContinueWithOnMainThread(taskk =>
+            {
+                if (taskk.IsCanceled)
+                {
+                    UIControl.I.RegisterCanceled("Bir şeyler ters gitti.");
+                    return taskk;
+                }
+                else if (taskk.IsFaulted)
+                {
+                    var errMsg = "Kayit başarısız:\n";
+                    if (task.Exception != null)
+                    {
+                        foreach (Exception exception in task.Exception.Flatten().InnerExceptions) {
+                            string authErrorCode = "";
+                            Firebase.FirebaseException firebaseEx = exception as Firebase.FirebaseException;
+                            if (firebaseEx != null) {
+                                authErrorCode = String.Format("AuthError.{0}: ",
+                                    ((Firebase.Auth.AuthError)firebaseEx.ErrorCode).ToString());
+                            }
+
+                            errMsg += authErrorCode + exception.ToString() + "\n";
+                        }
+                    }
+                    UIControl.I.RegisterFaulted(errMsg);
+                    return taskk;
+                }
+                else if (taskk.IsCompleted)
+                {
+                    return UpdateUserProfileAttempt(newName, task5 => {}).ContinueWithOnMainThread((task1 =>
+                    {
+                        if (task1.IsCanceled)
+                        {
+                            Debug.Log("1");
+                            UIControl.I.RegisterCanceled("Bir şeyler ters gitti.");
+                            taskk.Result.User.DeleteAsync();
+                            return task1;
+                        }
+
+                        if (task1.IsFaulted)
+                        {
+                            Debug.Log("2");
+                            UIControl.I.RegisterFaulted("Bir şeyler ters gitti.");
+                            taskk.Result.User.DeleteAsync();
+                            return task1;
+                        }
+
+                        if (task1.IsCompleted)
+                        {
+                            Debug.Log("3");
+
+                            lastRef = task.Result[0].Reference;
+                            
+                            var entryValues = new Dictionary<string, string>();
+                            entryValues["email"] = newMail;
+                            entryValues["fullname"] = newName;
+                            entryValues["groupid"] = task.Result[0].Id;
+                            entryValues["role"] = "student";
+                            dbRef.Collection("Users").Document(taskk.Result.User.UserId).SetAsync(entryValues).ContinueWithOnMainThread(UserUpdateComplete);
+                            
+                            
+                            
+                            task.Result[0].Reference.UpdateAsync("members",
+                                Firebase.Firestore.FieldValue.ArrayUnion(taskk.Result.User.UserId)).ContinueWithOnMainThread(MemberUpdateComplete);
+                            Dictionary<string, Object> childUpdates = new Dictionary<string, Object>();
+                        }
+
+                        return task1;
+                    })).Unwrap();
+                }
+                return taskk;
+            }).Unwrap();
+        }));
+    }
+
+    public void EditCar(string newRef, SavedCarProps newProps, Action<Task> onComplete)
+    {
+        Dictionary<string, object> dict = new Dictionary<string, object>
+        {
+            {"name", newProps.name},
+            {"bodywork", newProps.kaportaId},
+            {"tire", newProps.lastikId},
+            {"engine", newProps.motorId},
+            {"seat", newProps.koltukId},
+            {"spoiler", newProps.ruzgarlikId},
+        };
+        dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").Document(newRef).UpdateAsync(dict).ContinueWithOnMainThread(onComplete);
+    }
+    
+    public void AddCar(SavedCarProps newProps, Action<Task<DocumentReference>> onComplete)
+    {
+        Dictionary<string, object> dict = new Dictionary<string, object>
+        {
+            {"name", newProps.name},
+            {"bodywork", newProps.kaportaId},
+            {"tire", newProps.lastikId},
+            {"engine", newProps.motorId},
+            {"seat", newProps.koltukId},
+            {"spoiler", newProps.ruzgarlikId},
+        };
+
+        dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").AddAsync(dict).ContinueWithOnMainThread(onComplete);
+
+    }
+
+    public void RemoveCar(string newRef, Action<Task> onComplete)
+    {
+        dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").Document(newRef).DeleteAsync().ContinueWithOnMainThread(onComplete);
+    }
+
+    public bool DidLoadCars { get; private set; } = false;
+    
+    public Task LoadCars(Action<Task> onComplete)
+    {
+        UIControl.I.SetWaitBG(true);
+        dbRef = FirebaseFirestore.DefaultInstance;
+        return dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").GetSnapshotAsync()
+            .ContinueWithOnMainThread(
+        task =>
+                {
+                    if (task.IsCanceled)
+                    {
+                        UIControl.I.SetWaitBG(false);
+                        return task;
+                    }
+
+                    if (task.IsFaulted)
+                    {
+                        UIControl.I.SetWaitBG(false);
+                        return task;
+                    }
+
+                    if (task.IsCompleted)
+                    {
+                        dbRef.Collection("Users").Document(auth.CurrentUser.UserId).GetSnapshotAsync()
+                            .ContinueWithOnMainThread(task1 =>
+                            {
+                                if (task1.IsCanceled)
+                                {
+                                    UIControl.I.SetWaitBG(false);
+                                    return task1;
+                                }
+
+                                if (task1.IsFaulted)
+                                {
+                                    UIControl.I.SetWaitBG(false);
+                                    return task1;
+                                }
+
+                                if (task1.IsCompleted)
+                                {
+                                    isStudent = task1.Result.GetValue<string>("role") == "student";
+                                    SaveCarController.I.SetCarCount(task.Result.Count);
+                                    foreach (var documentSnapshot in task.Result.Documents)
+                                    {
+                                        Debug.Log(documentSnapshot.Id);
+                                        SaveCarController.I.AddCar(new SavedCarProps
+                                        {
+                                            docPath = documentSnapshot.Id,
+                                            name = documentSnapshot.GetValue<string>("name"),
+                                            kaportaId = documentSnapshot.GetValue<int>("bodywork"),
+                                            lastikId = documentSnapshot.GetValue<int>("tire"),
+                                            motorId = documentSnapshot.GetValue<int>("engine"),
+                                            koltukId = documentSnapshot.GetValue<int>("seat"),
+                                            ruzgarlikId = documentSnapshot.GetValue<int>("spoiler"),
+                                        });
+                                    }
+
+                                    DidLoadCars = true;
+                                    onComplete?.Invoke(task);
+                                    return task1;
+                                }
+                                return task1;
+                            }).Unwrap();
+
+                        return task;
+                    }
+
+                    return task;
+                }).Unwrap();
+    }
+    
+    private DocumentReference lastRef;
+    private bool memberUpdateCompleted = false;
+    private bool userUpdateCompleted = false;
+
+    public void UserUpdateComplete(Task task)
+    {
+        if (task.IsCanceled)
+        {
+            auth.CurrentUser.DeleteAsync();
+            lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
+            dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            UIControl.I.RegisterCanceled("Bir şeyler ters gitti.");
+        }
+        else if (task.IsFaulted)
+        {
+            auth.CurrentUser.DeleteAsync();
+            lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
+            dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            UIControl.I.RegisterFaulted("Bir şeyler ters gitti.");
+        }
+        else if (task.IsCompleted)
+        {
+            userUpdateCompleted = true;
+            if (memberUpdateCompleted)
+            {
+                userUpdateCompleted = false;
+                memberUpdateCompleted = false;
+                UIControl.I.RegisterEnd();
+            }
+        }
+    }
+    
+    public void MemberUpdateComplete(Task task)
+    {
+        if (task.IsCanceled)
+        {
+            auth.CurrentUser.DeleteAsync();
+            lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
+            dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            UIControl.I.RegisterCanceled("Bir şeyler ters gitti.");
+        }
+        else if (task.IsFaulted)
+        {
+            auth.CurrentUser.DeleteAsync();
+            lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
+            dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            UIControl.I.RegisterFaulted("Bir şeyler ters gitti.");
+        }
+        else if (task.IsCompleted)
+        {
+            memberUpdateCompleted = true;
+            if (userUpdateCompleted)
+            {
+                userUpdateCompleted = false;
+                memberUpdateCompleted = false;
+                UIControl.I.RegisterEnd();
+            }
+        }
+    }
+    
     [Button]
     public Task CreateUserWithEmailAsync() {
         Debug.Log(String.Format("Attempting to create user {0}...", email));
@@ -289,6 +602,21 @@ public class AuthController : SingletonNew<AuthController>
 
                 Debug.Log("Data added successfully.");
             });
+    }
+
+
+    public Task UpdateUserProfileAttempt(string newDisplayName, Action<Task> onComplete)
+    {
+        if (auth.CurrentUser == null)
+        {
+            Debug.Log("WTF");
+            return Task.FromResult(0);
+        }
+
+        return auth.CurrentUser.UpdateUserProfileAsync(new Firebase.Auth.UserProfile
+        {
+            DisplayName = newDisplayName
+        }).ContinueWithOnMainThread(onComplete);
     }
     
     [Button]

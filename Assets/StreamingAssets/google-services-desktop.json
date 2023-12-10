@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1070232518841",
+    "project_id": "armo-website",
+    "storage_bucket": "armo-website.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1070232518841:android:e09207edb1a6db183adb68",
+        "android_client_info": {
+          "package_name": "com.armoproject.armo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDy2OGlXX6mbn4r_UhHJHSNOWRAVmjx5jY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

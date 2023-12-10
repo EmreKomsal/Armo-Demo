@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class PartEffectController : SingletonNew<PartEffectController>
 {
-    public float minSpeed = 0.03f;
-    public float maxSpeed = 1f;
+    public float minSpeed = 0.01f;
+    public float maxSpeed = 2f;
     
     public float baseSpeedKaporta0 = 0.3f;
     public float baseSpeedKaporta1= 0.4f;
@@ -28,7 +28,14 @@ public class PartEffectController : SingletonNew<PartEffectController>
     public float speedEffectRuzgarlik2 = 0.2f;
 
 
+    public float speedEffectToprak = 0.6f;
+    public float speedEffectMicir = 0.8f;
+    public float speedEffectAsfalt = 1f;
+    public float speedEffectBuz = 1.2f;
+
     private Vector2 minMaxSpeed;
+
+    public Vector2 shownSpeedRange = new Vector2(60f, 200f);
 
     public Vector2 GetMinMaxSpeed()
     {
@@ -38,16 +45,25 @@ public class PartEffectController : SingletonNew<PartEffectController>
     private void Start()
     {
         var min = Mathf.Clamp(
-            (baseSpeedKaporta0 * speedEffectMotor0) + speedEffectLastik0 + speedEffectKoltuk0 + speedEffectRuzgarlik0,
+            ((baseSpeedKaporta0 * speedEffectMotor0) + speedEffectLastik0 + speedEffectKoltuk0 + speedEffectRuzgarlik0) * speedEffectToprak,
             minSpeed, maxSpeed);
         var max = Mathf.Clamp(
-            (baseSpeedKaporta2 * speedEffectMotor2) + speedEffectLastik2 + speedEffectKoltuk2 + speedEffectRuzgarlik2,
+            ((baseSpeedKaporta2 * speedEffectMotor2) + speedEffectLastik2 + speedEffectKoltuk2 + speedEffectRuzgarlik2) * speedEffectBuz,
             minSpeed, maxSpeed);
         minMaxSpeed = new Vector2(min, max);
     }
 
 
-    public float GetSpeed(SavedCarProps carProps)
+    public enum GroundType
+    {
+        NONE,
+        Toprak,
+        Micir,
+        Asfalt,
+        Buz,
+    }
+    
+    public float GetSpeed(SavedCarProps carProps, GroundType newGroundType = GroundType.NONE)
     {
         var baseSpeed = minSpeed;
         if (carProps.kaportaId == 0)
@@ -117,6 +133,25 @@ public class PartEffectController : SingletonNew<PartEffectController>
             baseSpeed += speedEffectRuzgarlik2;
         }
 
+        switch (newGroundType)
+        {
+            case GroundType.NONE:
+                break;
+            case GroundType.Toprak:
+                baseSpeed *= speedEffectToprak;
+                break;
+            case GroundType.Micir:
+                baseSpeed *= speedEffectMicir;
+                break;
+            case GroundType.Asfalt:
+                baseSpeed *= speedEffectAsfalt;
+                break;
+            case GroundType.Buz:
+                baseSpeed *= speedEffectBuz;
+                break;
+            
+        }
+        
         return Mathf.Clamp(baseSpeed, minSpeed, maxSpeed);
     }
 }
