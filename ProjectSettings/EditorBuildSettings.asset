@@ -6,13 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Preload.unity
+    path: Assets/0_Scenes/Preload.unity
     guid: 48df7fb606ada7146a840aa9d0cb06f1
   - enabled: 1
-    path: Assets/Scenes/UIScene.unity
+    path: Assets/0_Scenes/UIScene.unity
     guid: 0ab0ecf5acfbeb34c9f531612c88beb4
   - enabled: 1
-    path: Assets/Scenes/ARScene.unity
+    path: Assets/0_Scenes/ARScene.unity
     guid: 6bdce89659816455b9f906fc62d19910
   m_configObjects:
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: 744b813df90924c169af73489b8325de,

@@ -82,7 +82,7 @@ public class ResizeOnDetection : MonoBehaviour
     public string UpdateTimer()
     {
         timeMoving += Time.deltaTime;
-        return (timeMoving + " s");
+        return (timeMoving.ToString("F") + " s");
     }
 
     public float GetTimer() {
@@ -98,7 +98,7 @@ public class ResizeOnDetection : MonoBehaviour
         var projectedSpeed = Mathf.Lerp(PartEffectController.I.shownSpeedRange.x, PartEffectController.I.shownSpeedRange.y,speed - PartEffectController.I.GetMinMaxSpeed().x) /
                              (PartEffectController.I.GetMinMaxSpeed().y - PartEffectController.I.GetMinMaxSpeed().x);
         lastSpeed = projectedSpeed;
-        return (projectedSpeed.ToString("F")+ " km/h");
+        return (projectedSpeed.ToString("F1")+ " km/sa");
     }
 
     public string UpdateFriction()

@@ -42,6 +42,11 @@ public class SaveCarController : SingletonNew<SaveCarController>
 
     private List<SavedCarProps> savedCars = new List<SavedCarProps>();
 
+    public void ClearCars()
+    {
+        savedCars.Clear();
+    }
+    
     public int GetCarCount()
     {
         return carCount;

@@ -26,7 +26,7 @@ public class GameManager : SingletonNew<GameManager>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         // Check if the loaded scene has ID 1
-        if (scene.buildIndex == 1)
+        if (scene.buildIndex == 2)
         {
             // Load the prefab in the scene with ID 1
             LoadPrefab(transform); // Assuming the parentObject is this GameManager's GameObject
@@ -46,6 +46,7 @@ public class GameManager : SingletonNew<GameManager>
 
         int i = 0;
 
+        Debug.Log(lastCarProps.kaportaId);
         // Instantiate each prefab as a child of the parentObject
         foreach (GameObject prefab in prefabs)
         {

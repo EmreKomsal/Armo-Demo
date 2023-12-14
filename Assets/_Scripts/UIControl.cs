@@ -127,6 +127,7 @@ public class UIControl : SingletonNew<UIControl>
     [Header("Profile Panel")]
     public Button profileMainMenuButton;
     public Button profileLogoutButton;
+    public Button profileDeleteButton;
     public TMP_Text profileNameText;
     public TMP_Text profileMailText;
     public TMP_Text profileUidText;
@@ -215,6 +216,7 @@ public class UIControl : SingletonNew<UIControl>
         
         profileMainMenuButton.onClick.AddListener(MainPanel);
         profileLogoutButton.onClick.AddListener(Logout);
+        profileDeleteButton.onClick.AddListener(Logout);
         
         InitAllTabs();
 
@@ -227,8 +229,16 @@ public class UIControl : SingletonNew<UIControl>
     }
 
 
+    public void DeleteAccount()
+    {
+        AuthController.I.DeleteAccountAttempt();
+    }
+    
+    
+    
     public void Logout()
     {
+        AuthController.I.DidLoadCars = false;
         AuthController.I.auth.SignOut();
         LoginScreen();
     }

@@ -60,9 +60,7 @@ public class AuthController : SingletonNew<AuthController>
     }
     
     protected void InitializeFirebase() {
-        Debug.Log("Setting up Firebase Auth");
         auth = Firebase.Auth.FirebaseAuth.DefaultInstance;
-        Debug.Log(dbRef);
         auth.StateChanged += AuthStateChanged;
         auth.IdTokenChanged += IdTokenChanged;
         // Specify valid options to construct a secondary authentication object.
@@ -79,11 +77,25 @@ public class AuthController : SingletonNew<AuthController>
                 Debug.Log("ERROR: Failed to initialize secondary authentication object.");
             }
         }
-        AuthStateChanged(this, null);
-        SceneManager.LoadScene(1);
+
+        if (auth.CurrentUser != null)
+        {
+            auth.CurrentUser.ReloadAsync().ContinueWithOnMainThread(task =>
+            {
+                AuthStateChanged(this, null);
+                SceneManager.LoadScene(1);
+            });
+        }
+        else
+        {
+            AuthStateChanged(this, null);
+            SceneManager.LoadScene(1);
+        }
+        
+        
     }
 
-    public void SendResult(SavedCarProps newProps, PartEffectController.GroundType newGroundType, float duration, float speed, Action<Task<DocumentReference>> onComplete)
+    public void SendResult(SavedCarProps newProps, PartEffectController.GroundType newGroundType, float duration, float speed, float mass, Action<Task<DocumentReference>> onComplete)
     {
         if (!isStudent)
         {
@@ -105,6 +117,7 @@ public class AuthController : SingletonNew<AuthController>
             {"consumption", 0},
             {"duration", duration},
             {"friction", 0},
+            {"mass", mass},
             {"speed", speed},
         };
 
@@ -118,6 +131,7 @@ public class AuthController : SingletonNew<AuthController>
         };
         dbRef.Collection("Results").AddAsync(dict).ContinueWithOnMainThread(onComplete);
     }
+    
     
     void OnDestroy() {
         if (auth != null) {
@@ -280,7 +294,80 @@ public class AuthController : SingletonNew<AuthController>
             }
         });
     }
-    
+
+    public Task DeleteAccountAttempt()
+    {
+        UIControl.I.SetWaitBG(true);
+
+        if (auth.CurrentUser != null) {
+            
+            dbRef = FirebaseFirestore.DefaultInstance;
+            return dbRef.Collection("Users").Document(auth.CurrentUser.UserId).GetSnapshotAsync()
+                .ContinueWithOnMainThread(
+                    task1 =>
+                    {
+                        if (task1.IsCanceled)
+                        {
+                            UIControl.I.SetWaitBG(false);
+                            return task1;
+                        }
+                        if (task1.IsFaulted)
+                        {
+                            UIControl.I.SetWaitBG(false);
+                            return task1;
+                        }
+                        if (task1.IsCompleted)
+                        {
+                            dbRef.Collection("Groups").Document(task1.Result.GetValue<string>("groupid"))
+                                .GetSnapshotAsync().ContinueWithOnMainThread(
+                                    task2 =>
+                                    {
+                                        if (task2.IsCanceled)
+                                        {
+                                            UIControl.I.SetWaitBG(false);
+                                            return task2;
+                                        }
+                                        if (task2.IsFaulted)
+                                        {
+                                            UIControl.I.SetWaitBG(false);
+                                            return task2;
+                                        }
+                                        if (task2.IsCompleted)
+                                        {
+                                            task2.Result.Reference.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
+                                            dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+                                            auth.CurrentUser.DeleteAsync().ContinueWithOnMainThread(task => {
+                                                if (task.IsCanceled)
+                                                {
+                                                    UIControl.I.SetWaitBG(false);
+                                                    return task;
+                                                }
+                                                if (task.IsFaulted)
+                                                {
+                                                    UIControl.I.SetWaitBG(false);
+                                                    return task;
+                                                }
+                                                if (task.IsCompleted)
+                                                {
+                                                    UIControl.I.SetWaitBG(false);
+                                                    UIControl.I.LoginScreen();
+                                                    return task;
+                                                }
+                                                return task;
+                                            });
+                                            return task2;
+                                        }
+                                        return task2;
+                                    });
+                        }
+                        
+                        return task1;
+                    });
+        } else {
+            UIControl.I.SetWaitBG(false);
+            return Task.FromResult(0);
+        }
+    }
     
     public Task RegisterAttempt(string newMail, string newPassword, string newName, string newRef)
     {
@@ -425,7 +512,7 @@ public class AuthController : SingletonNew<AuthController>
         dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").Document(newRef).DeleteAsync().ContinueWithOnMainThread(onComplete);
     }
 
-    public bool DidLoadCars { get; private set; } = false;
+    public bool DidLoadCars { get; set; } = false;
     
     public Task LoadCars(Action<Task> onComplete)
     {
@@ -467,6 +554,7 @@ public class AuthController : SingletonNew<AuthController>
                                 if (task1.IsCompleted)
                                 {
                                     isStudent = task1.Result.GetValue<string>("role") == "student";
+                                    SaveCarController.I.ClearCars();
                                     SaveCarController.I.SetCarCount(task.Result.Count);
                                     foreach (var documentSnapshot in task.Result.Documents)
                                     {
@@ -505,16 +593,16 @@ public class AuthController : SingletonNew<AuthController>
     {
         if (task.IsCanceled)
         {
-            auth.CurrentUser.DeleteAsync();
             lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
             dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            auth.CurrentUser.DeleteAsync();
             UIControl.I.RegisterCanceled("Bir şeyler ters gitti.");
         }
         else if (task.IsFaulted)
         {
-            auth.CurrentUser.DeleteAsync();
             lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
             dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            auth.CurrentUser.DeleteAsync();
             UIControl.I.RegisterFaulted("Bir şeyler ters gitti.");
         }
         else if (task.IsCompleted)
@@ -533,16 +621,16 @@ public class AuthController : SingletonNew<AuthController>
     {
         if (task.IsCanceled)
         {
-            auth.CurrentUser.DeleteAsync();
             lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
             dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            auth.CurrentUser.DeleteAsync();
             UIControl.I.RegisterCanceled("Bir şeyler ters gitti.");
         }
         else if (task.IsFaulted)
         {
-            auth.CurrentUser.DeleteAsync();
             lastRef.UpdateAsync("members", FieldValue.ArrayRemove(auth.CurrentUser.UserId));
             dbRef.Collection("Users").Document(auth.CurrentUser.UserId).DeleteAsync();
+            auth.CurrentUser.DeleteAsync();
             UIControl.I.RegisterFaulted("Bir şeyler ters gitti.");
         }
         else if (task.IsCompleted)

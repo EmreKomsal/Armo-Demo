@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PartEffectController : SingletonNew<PartEffectController>
@@ -33,10 +34,28 @@ public class PartEffectController : SingletonNew<PartEffectController>
     public float speedEffectAsfalt = 1f;
     public float speedEffectBuz = 1.2f;
 
+
+    public List<float> massKaporta = new List<float> { 800, 600, 400 };
+    public List<float> massLastik = new List<float> { 800, 600, 400 };
+    public List<float> massMotor = new List<float> { 800, 600, 400 };
+    public List<float> massKoltuk = new List<float> { 800, 600, 400 };
+    public List<float> massRuzgarlik = new List<float> { 800, 600, 400 };
+
     private Vector2 minMaxSpeed;
 
     public Vector2 shownSpeedRange = new Vector2(60f, 200f);
 
+    public float GetMass(SavedCarProps newProps)
+    {
+        var total = 0f;
+        total += massKaporta[newProps.kaportaId];
+        total += massLastik[newProps.lastikId];
+        total += massMotor[newProps.motorId];
+        total += massKoltuk[newProps.koltukId];
+        total += massRuzgarlik[newProps.ruzgarlikId];
+        return total;
+    }
+    
     public Vector2 GetMinMaxSpeed()
     {
         return minMaxSpeed;

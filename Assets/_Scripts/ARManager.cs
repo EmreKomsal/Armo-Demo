@@ -38,7 +38,7 @@ public class ARManager : SingletonNew<ARManager>
     public GameObject EndMenu;
     public TMP_Text end_speedText;
     public TMP_Text end_timeText;
-    public TMP_Text end_frictionText;
+    public TMP_Text end_agirlikText;
     public Button end_NextBtn;
 
     [Header("End Components")]
@@ -208,14 +208,14 @@ public class ARManager : SingletonNew<ARManager>
             time = currentRoad.GetTimer();
             RaceMenu.SetActive(false);
             EndMenu.SetActive(true);
-            end_frictionText.text = currentRoad.UpdateFriction();
+            end_agirlikText.text = Mathf.FloorToInt(PartEffectController.I.GetMass(GameManager.I.lastCarProps)).ToString() + " Kg";
             end_speedText.text = speedText.text;
             end_timeText.text = timerText.text;
             
             
             menu_speedText.text = speedText.text;
             menu_timeText.text = timerText.text;
-            menu_frictionText.text = end_frictionText.text;
+            menu_frictionText.text = end_agirlikText.text;
         }
     }
 
@@ -246,7 +246,7 @@ public class ARManager : SingletonNew<ARManager>
     private void ARM_LoadMenu() 
     {
         SetWaitBG(true);
-        AuthController.I.SendResult(GameManager.I.lastCarProps, currentRoad.groundType, currentRoad.GetTimeMoving(), currentRoad.GetSpeed(), LoadMenu);
+        AuthController.I.SendResult(GameManager.I.lastCarProps, currentRoad.groundType, currentRoad.GetTimeMoving(), currentRoad.GetSpeed(), PartEffectController.I.GetMass(GameManager.I.lastCarProps), LoadMenu);
     }
 
     public void LoadMenu(Task<DocumentReference> task)
