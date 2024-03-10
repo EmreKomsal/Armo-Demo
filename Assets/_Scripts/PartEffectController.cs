@@ -45,6 +45,24 @@ public class PartEffectController : SingletonNew<PartEffectController>
 
     public Vector2 shownSpeedRange = new Vector2(60f, 200f);
 
+    public float maxSpeedDuration = 0.93f;
+
+    public float GetDuration(float currentSpeed)
+    {
+        return Mathf.Lerp(maxSpeedDuration * (shownSpeedRange.y / shownSpeedRange.x), maxSpeedDuration,
+            GetPercentage(currentSpeed));
+    }
+    
+    public float GetPercentage(float currentSpeed)
+    {
+        return (currentSpeed - minMaxSpeed.x) / (minMaxSpeed.y - minMaxSpeed.x);
+    }
+
+    public float GetProjectedSpeed(float currentSpeed)
+    {
+        return Mathf.Lerp(shownSpeedRange.x, shownSpeedRange.y, GetPercentage(currentSpeed));
+    }
+
     public float GetMass(SavedCarProps newProps)
     {
         var total = 0f;
@@ -64,10 +82,10 @@ public class PartEffectController : SingletonNew<PartEffectController>
     private void Start()
     {
         var min = Mathf.Clamp(
-            ((baseSpeedKaporta0 * speedEffectMotor0) + speedEffectLastik0 + speedEffectKoltuk0 + speedEffectRuzgarlik0) * speedEffectToprak,
+            ((baseSpeedKaporta0 * speedEffectMotor1) + speedEffectLastik0 + speedEffectKoltuk2 + speedEffectRuzgarlik0) * speedEffectToprak,
             minSpeed, maxSpeed);
         var max = Mathf.Clamp(
-            ((baseSpeedKaporta2 * speedEffectMotor2) + speedEffectLastik2 + speedEffectKoltuk2 + speedEffectRuzgarlik2) * speedEffectBuz,
+            ((baseSpeedKaporta2 * speedEffectMotor0) + speedEffectLastik2 + speedEffectKoltuk0 + speedEffectRuzgarlik2) * speedEffectBuz,
             minSpeed, maxSpeed);
         minMaxSpeed = new Vector2(min, max);
     }

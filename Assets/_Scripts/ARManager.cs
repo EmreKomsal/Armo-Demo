@@ -12,7 +12,10 @@ public class ARManager : SingletonNew<ARManager>
 {
     [Header("Info Components")]
     public GameObject InfoMenu;
+    // public GameObject arInfoMenu;
+    // public GameObject arDangerInfoMenu;
     public Button infoBackButton;
+    // public Button anladimButton;
 
     [Header("PistSize Components")]
     public GameObject PistMenu;
@@ -54,7 +57,10 @@ public class ARManager : SingletonNew<ARManager>
     void Start()
     {
         Debug.Log("ARManager Start method called."); // This should appear in the console when the scene starts
-
+        InfoMenu.SetActive(true);
+        // arInfoMenu.SetActive(false);
+        // arDangerInfoMenu.SetActive(true);
+        // DidSkipDangerInfo = false;
         // Continue with button assignments and log each step
         if (ilerleBtn != null)
         {
@@ -107,17 +113,18 @@ public class ARManager : SingletonNew<ARManager>
         }
         
         infoBackButton.onClick.AddListener(ARM_Home);
+        // anladimButton.onClick.AddListener(SkipDangerInfo);
 }
 
-    public void LateUpdate()
-    {
-        if (RaceMenu.activeSelf)
-        {
-            ChangeSpeedText();
-            ChangeTimerText();
-            CheckFinish();
-        }
-    }
+    // public void LateUpdate()
+    // {
+    //     if (RaceMenu.activeSelf)
+    //     {
+    //         ChangeSpeedText();
+    //         ChangeTimerText();
+    //         CheckFinish();
+    //     }
+    // }
 
     #region RoadResize
 
@@ -130,6 +137,8 @@ public class ARManager : SingletonNew<ARManager>
     public float minSize = 0.5f; // The minimum size the road can be resized to
 
 
+    // public bool DidSkipDangerInfo { get; private set; } = false;
+    
     public void SetCurrentRoad(ResizeOnDetection road)
     {
         ResizeOnDetection temp_road = road;
@@ -143,6 +152,13 @@ public class ARManager : SingletonNew<ARManager>
         }
         return;
     }
+
+    // public void SkipDangerInfo()
+    // {
+    //     arDangerInfoMenu.SetActive(false);
+    //     arInfoMenu.SetActive(true);
+    //     DidSkipDangerInfo = true;
+    // }
 
     public void ARM_MakeRoadLonger()
     {
@@ -191,33 +207,47 @@ public class ARManager : SingletonNew<ARManager>
 
     #region RaceMenu
 
-    private void ChangeSpeedText()
-    {
-        speedText.text = currentRoad.UpdateSpeed();
-    }
+    // private void ChangeSpeedText()
+    // {
+    //     speedText.text = currentRoad.UpdateSpeed();
+    // }
+    //
+    // private void ChangeTimerText()
+    // {
+    //     timerText.text = currentRoad.UpdateTimer();
+    // }
 
-    private void ChangeTimerText()
+    public void Finish()
     {
-        timerText.text = currentRoad.UpdateTimer();
-    }
-
-    private void CheckFinish() 
-    {
-        if (currentRoad.GetFinish())
-        {
-            time = currentRoad.GetTimer();
-            RaceMenu.SetActive(false);
-            EndMenu.SetActive(true);
-            end_agirlikText.text = Mathf.FloorToInt(PartEffectController.I.GetMass(GameManager.I.lastCarProps)).ToString() + " Kg";
-            end_speedText.text = speedText.text;
-            end_timeText.text = timerText.text;
+        RaceMenu.SetActive(false);
+        EndMenu.SetActive(true);
+        end_agirlikText.text = Mathf.FloorToInt(PartEffectController.I.GetMass(GameManager.I.lastCarProps)).ToString() + " Kg";
+        end_speedText.text = speedText.text;
+        end_timeText.text = timerText.text;
             
             
-            menu_speedText.text = speedText.text;
-            menu_timeText.text = timerText.text;
-            menu_frictionText.text = end_agirlikText.text;
-        }
+        menu_speedText.text = speedText.text;
+        menu_timeText.text = timerText.text;
+        menu_frictionText.text = end_agirlikText.text;
     }
+    
+    // private void CheckFinish() 
+    // {
+    //     if (currentRoad.GetFinish())
+    //     {
+    //         time = currentRoad.GetTimer();
+    //         RaceMenu.SetActive(false);
+    //         EndMenu.SetActive(true);
+    //         end_agirlikText.text = Mathf.FloorToInt(PartEffectController.I.GetMass(GameManager.I.lastCarProps)).ToString() + " Kg";
+    //         end_speedText.text = speedText.text;
+    //         end_timeText.text = timerText.text;
+    //         
+    //         
+    //         menu_speedText.text = speedText.text;
+    //         menu_timeText.text = timerText.text;
+    //         menu_frictionText.text = end_agirlikText.text;
+    //     }
+    // }
 
     #endregion
 

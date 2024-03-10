@@ -23,18 +23,24 @@ public class ResizeOnDetection : MonoBehaviour
     private DefaultObserverEventHandler observerEventHandler;
     private bool isTargetFound = false;
 
-    private bool isCarMoving = false;
-    private float timeMoving = 0f;
+    // private bool isCarMoving = false;
+    // private float timeMoving = 0f;
 
+
+    private float elapsed = 0f;
+    
+    
     float speed = 0.3f;
+
+    private float projSpeed = 0f;
     public float speedMlp = 1f;
-    float holdTime = 0.2f;
+    // float holdTime = 0.2f;
 
     public float lastSize;
 
     public float GetTimeMoving()
     {
-        return timeMoving;
+        return elapsed;
     }
 
     public float GetSpeed()
@@ -68,52 +74,52 @@ public class ResizeOnDetection : MonoBehaviour
         // Hide buttons when the scene starts
     }
 
-    private void LateUpdate()
-    {
-        // Update the timer if the car is moving
-        if (isCarMoving)
-        {
-            MoveCarTowardsFinish();
-            UpdateTimer();
-        }
-    }
+    // private void LateUpdate()
+    // {
+    //     // Update the timer if the car is moving
+    //     if (isCarMoving)
+    //     {
+    //         MoveCarTowardsFinish();
+    //         UpdateTimer();
+    //     }
+    // }
 
 
-    public string UpdateTimer()
-    {
-        timeMoving += Time.deltaTime;
-        return (timeMoving.ToString("F") + " s");
-    }
-
-    public float GetTimer() {
-        return timeMoving;
-    }
+    // public string UpdateTimer()
+    // {
+    //     timeMoving += Time.deltaTime;
+    //     return (timeMoving.ToString("F") + " s");
+    // }
+    //
+    // public float GetTimer() {
+    //     return timeMoving;
+    // }
 
     private float lastSpeed = 0;
     
     
     
-    public string UpdateSpeed()
-    {
-        var projectedSpeed = Mathf.Lerp(PartEffectController.I.shownSpeedRange.x, PartEffectController.I.shownSpeedRange.y,speed - PartEffectController.I.GetMinMaxSpeed().x) /
-                             (PartEffectController.I.GetMinMaxSpeed().y - PartEffectController.I.GetMinMaxSpeed().x);
-        lastSpeed = projectedSpeed;
-        return (projectedSpeed.ToString("F1")+ " km/sa");
-    }
+    // public string UpdateSpeed()
+    // {
+    //     var projectedSpeed = Mathf.Lerp(PartEffectController.I.shownSpeedRange.x, PartEffectController.I.shownSpeedRange.y,speed - PartEffectController.I.GetMinMaxSpeed().x) /
+    //                          (PartEffectController.I.GetMinMaxSpeed().y - PartEffectController.I.GetMinMaxSpeed().x);
+    //     lastSpeed = projectedSpeed;
+    //     return (projectedSpeed.ToString("F1")+ " km/sa");
+    // }
 
-    public string UpdateFriction()
-    {
-        return ("%" + speedMlp);
-    }
+    // public string UpdateFriction()
+    // {
+    //     return ("%" + speedMlp);
+    // }
 
-    public bool GetFinish() 
-    {
-        if (isCarMoving)
-        {
-            return false;
-        }
-        return true;
-    }
+    // public bool GetFinish() 
+    // {
+    //     if (isCarMoving)
+    //     {
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     private void OnDestroy()
     {
@@ -128,6 +134,10 @@ public class ResizeOnDetection : MonoBehaviour
     private void OnTargetFound()
     {
         // ImageTarget detected, resize the road to the initial size
+        // if (!ARManager.DidSkipDangerInfo)
+        // {
+        //     return;
+        // }
         ResizeRoad(initialSize);
 
         ARManager.SetCurrentRoad(this);
@@ -193,29 +203,62 @@ public class ResizeOnDetection : MonoBehaviour
 
     private float curScaleMlpSpeed = 1f;
     
+    
+    private IEnumerator MoveCarRoutine()
+    {
+        var curDur = PartEffectController.I.GetDuration(speed);
+        elapsed = 0f;
+        ARManager.speedText.text = (projSpeed.ToString("F1") + " km/sa");
+        lastSpeed = projSpeed;
+        while (elapsed <= curDur)
+        {
+            car.transform.position = Vector3.Lerp(carHolder.position, finishHolder.position, elapsed / curDur);
+            yield return new WaitForEndOfFrame();
+            elapsed += Time.deltaTime;
+            ARManager.timerText.text = (elapsed.ToString("F") + " s");
+        }
+
+        elapsed = curDur;
+        ARManager.timerText.text = (elapsed.ToString("F") + " s");
+        car.transform.position = finishHolder.position;
+        
+        ARManager.I.Finish();
+    }
+
+    private Coroutine carMoveRoutine;
+    
     public void StartCar()
     {
         speed = PartEffectController.I.GetSpeed(gameManager.lastCarProps, groundType);
+        projSpeed = PartEffectController.I.GetProjectedSpeed(speed);
         curScaleMlpSpeed = lastSize / initialSize;
-        isCarMoving = true;
-    }
 
-    public void MoveCarTowardsFinish()
-    {
-        if (car == null || finishHolder == null)
+        if (carMoveRoutine != null)
         {
-            Debug.LogError("Car or FinishHolder is not set.");
-            return;
+            StopCoroutine(carMoveRoutine);
         }
 
-        // Move car towards the finish point
-        car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * curScaleMlpSpeed * Time.deltaTime);
+        carMoveRoutine = StartCoroutine(MoveCarRoutine());
 
-        // Check if the car has reached the finish point within a tolerance
-        if (Vector3.Distance(car.transform.position, finishHolder.position) < 0.1f)
-        {
-            // Car has reached the finish
-            isCarMoving = false;
-        }
+        // isCarMoving = true;
     }
+
+    // public void MoveCarTowardsFinish()
+    // {
+    //     if (car == null || finishHolder == null)
+    //     {
+    //         Debug.LogError("Car or FinishHolder is not set.");
+    //         return;
+    //     }
+    //
+    //     // Move car towards the finish point
+    //     car.transform.position = Vector3.MoveTowards(car.transform.position, finishHolder.position, speed * speedMlp * curScaleMlpSpeed * Time.deltaTime);
+    //
+    //     // Check if the car has reached the finish point within a tolerance
+    //     if (Vector3.Distance(car.transform.position, finishHolder.position) < 0.1f)
+    //     {
+    //         // Car has reached the finish
+    //         isCarMoving = false;
+    //     }
+    // }
 }
