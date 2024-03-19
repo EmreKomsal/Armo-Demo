@@ -17,6 +17,8 @@ public class SavedCarProps
     public int motorId = 0;
     public int koltukId = 0;
     public int ruzgarlikId = 0;
+    public int renkId = 0;
+    public int stilId = 0;
 
     public SavedCarProps()
     {
@@ -32,6 +34,8 @@ public class SavedCarProps
         motorId = props.motorId;
         koltukId = props.koltukId;
         ruzgarlikId = props.ruzgarlikId;
+        renkId = props.renkId;
+        stilId = props.stilId;
     }
 }
 
@@ -253,6 +257,8 @@ public class SaveCarController : SingletonNew<SaveCarController>
             PlayerPrefs.SetInt("savedCar_" + j + "_motorId", props.motorId);
             PlayerPrefs.SetInt("savedCar_" + j + "_koltukId", props.koltukId);
             PlayerPrefs.SetInt("savedCar_" + j + "_ruzgarlikId", props.ruzgarlikId);
+            PlayerPrefs.SetInt("savedCar_" + j + "_renId", props.renkId);
+            PlayerPrefs.SetInt("savedCar_" + j + "_stilId", props.stilId);
         }
     }
 }

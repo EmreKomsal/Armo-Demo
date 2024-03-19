@@ -10,21 +10,54 @@ public class DangerInfoManager : MonoBehaviour
     public Button backButton;
     public Button skipButton;
 
+    public GameObject waitBg;
+    public Transform waitBgRotatingTransform;
+    public float waitBgRotateSpeed = 360f;
+    private bool waitBgActive = false;
 
+    public void SetWaitBG(bool to)
+    {
+        waitBg.SetActive(to);
+        waitBgRotatingTransform.localRotation = Quaternion.identity;
+        waitBgActive = to;
+    }
+    
+    public void Update()
+    {
+        if (waitBgActive)
+        {
+            waitBgRotatingTransform.localRotation =
+                Quaternion.AngleAxis(waitBgRotateSpeed * Time.deltaTime, Vector3.forward) *
+                waitBgRotatingTransform.localRotation;
+        }
+    }
+    
     private void Start()
     {
+        SetWaitBG(false);
         backButton.onClick.AddListener(Back);
         skipButton.onClick.AddListener(Skip);
     }
 
     public void Back()
     {
+        SetWaitBG(true);
         GameManager.I.currentScreenType = StartScreenType.MainPanel;
-        SceneManager.LoadScene(1);
+
+        UtilityRoutines.I.DelayedCall(0.5f, delegate
+        {
+            SceneManager.LoadScene(1);
+        });
+
     }
 
     public void Skip()
     {
-        SceneManager.LoadScene(3);
+        SetWaitBG(true);
+
+        UtilityRoutines.I.DelayedCall(0.5f, delegate
+        {
+            SceneManager.LoadScene(3);
+        });
     }
 }

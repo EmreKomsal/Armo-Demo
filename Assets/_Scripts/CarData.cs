@@ -1,27 +1,30 @@
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class CarData : MonoBehaviour
 {
-    [Header("Car Properties")]
-    public string CarName;
-    public Object model;
-    public float speed;
-    public Color carColor;
-    public float acceleration;
-    public float weight;
+
+    [ReadOnly] public bool isGhost = false;
+    public GameObject crownObject;
 
     public GameObject activeSpoiler;
     public GameObject activeWheel;
+    public List<GameObject> activeStil;
 
     public int activeWheelID;
     public int activeSpoilerID;
+    public int activeRenkID;
+    public int activeStilID;
 
     public List<GameObject> spoilerList;
     public List<GameObject> wheelList;
+    public List<GOList> stilList;
+    public List<Renderer> colorChangingRends;
 
     public float speedMlp = 1f;
 
+    private MaterialPropertyBlock propBlock;
 
     public void SetNextWheel()
     {
@@ -126,8 +129,10 @@ public class CarData : MonoBehaviour
 
 
     // Function to set wheel and spoiler based on given IDs
-    public void SetPartsByID(int wheelID, int spoilerID)
+    public void SetPartsByID(int wheelID, int spoilerID, int renkId, int stilId, bool setGhost)
     {
+        isGhost = setGhost;
+        crownObject.SetActive(isGhost);
         // Set wheel by ID
         if (wheelList.Count > 0 && wheelID >= 0 && wheelID < wheelList.Count)
         {
@@ -144,6 +149,51 @@ public class CarData : MonoBehaviour
             activeSpoiler = spoilerList[spoilerID];
             activeSpoiler.SetActive(true);
             activeSpoilerID = spoilerID; // Update the activeSpoilerID
+        }
+        
+        if (stilList.Count > 0 && stilId >= 0 && stilId < stilList.Count)
+        {
+            foreach (var o in activeStil)
+            {
+                o.SetActive(false);
+            }
+            activeStil = stilList[stilId].gameObjects;
+            foreach (var o in activeStil)
+            {
+                o.SetActive(true);
+            }
+            activeStilID = stilId; // Update the activeSpoilerID
+        }
+        
+        if (propBlock == null)
+        {
+            propBlock = new MaterialPropertyBlock();
+        }
+
+        var propName = GameManager.I.colorPropertyName;
+        var matIndex = GameManager.I.colorMaterialIndex;
+        var c = GameManager.I.colors[renkId];
+        if (isGhost)
+        {
+            c.a = GameManager.I.ghostColorAlpha;
+            var otherRends = GetComponentsInChildren<Renderer>(true);
+            foreach (var rend in otherRends)
+            {
+                rend.GetPropertyBlock(propBlock, matIndex);
+                var otherColor = propBlock.GetColor(propName);
+                otherColor.a = GameManager.I.ghostColorAlpha;
+                propBlock.SetColor(propName, otherColor);
+                rend.SetPropertyBlock(propBlock, matIndex);
+            }
+        }
+        else
+        {
+            foreach (var rend in colorChangingRends)
+            {
+                rend.GetPropertyBlock(propBlock, matIndex);
+                propBlock.SetColor(propName, c);
+                rend.SetPropertyBlock(propBlock, matIndex);
+            }
         }
     }
 }

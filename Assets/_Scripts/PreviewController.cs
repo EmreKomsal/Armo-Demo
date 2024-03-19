@@ -37,11 +37,13 @@ public class PreviewController : SingletonNew<PreviewController>
     public void SetPreview(bool isCar, SavedCarProps savedCar, int tabIndex)
     {
         CloseAll();
-        if (isCar || tabIndex == 0)
+        if (isCar || tabIndex == 0 || tabIndex == 5)
         {
             previewCars[savedCar.kaportaId].Activate();
             previewCars[savedCar.kaportaId].SetSpoilers(savedCar.ruzgarlikId);
             previewCars[savedCar.kaportaId].SetTires(savedCar.lastikId);
+            previewCars[savedCar.kaportaId].SetColor(savedCar.renkId);
+            previewCars[savedCar.kaportaId].SetStil(savedCar.stilId);
         }
         else if (tabIndex == 1)
         {
@@ -64,9 +66,16 @@ public class PreviewController : SingletonNew<PreviewController>
             previewCars[savedCar.kaportaId].Activate();
             previewCars[savedCar.kaportaId].SetSpoilers(savedCar.ruzgarlikId);
             previewCars[savedCar.kaportaId].SetTires(savedCar.lastikId);
+            previewCars[savedCar.kaportaId].SetColor(savedCar.renkId);
+            previewCars[savedCar.kaportaId].SetStil(savedCar.stilId);
         }
     }
 
+    public void SetColor(int newKaportaId, int newRenkId)
+    {
+        previewCars[newKaportaId].SetColor(newRenkId);
+    }
+    
     public void CloseAll()
     {
         foreach (var previewCar in previewCars)

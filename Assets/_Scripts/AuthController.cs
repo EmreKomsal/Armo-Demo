@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Firebase;
 using Firebase.Extensions;
@@ -94,7 +95,8 @@ public class AuthController : SingletonNew<AuthController>
         
         
     }
-
+    
+    
     public void SendResult(SavedCarProps newProps, PartEffectController.GroundType newGroundType, float duration, float speed, float mass, Action<Task<DocumentReference>> onComplete)
     {
         if (!isStudent)
@@ -110,6 +112,9 @@ public class AuthController : SingletonNew<AuthController>
             {"seat", newProps.koltukId},
             {"spoiler", newProps.ruzgarlikId},
             {"tire", newProps.lastikId},
+            {"name", newProps.name},
+            {"color", newProps.renkId},
+            {"stil", newProps.stilId},
         };
 
         var outcomeMap = new Dictionary<string, object>
@@ -129,6 +134,7 @@ public class AuthController : SingletonNew<AuthController>
             {"timestamp", Timestamp.GetCurrentTimestamp()},
             {"userid", auth.CurrentUser.UserId},
         };
+        // GameManager.I.bestScoresHolder.AddToDictionary(newGroundType, newProps, speed);
         dbRef.Collection("Results").AddAsync(dict).ContinueWithOnMainThread(onComplete);
     }
     
@@ -487,6 +493,8 @@ public class AuthController : SingletonNew<AuthController>
             {"engine", newProps.motorId},
             {"seat", newProps.koltukId},
             {"spoiler", newProps.ruzgarlikId},
+            {"color", newProps.renkId},
+            {"stil", newProps.stilId},
         };
         dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").Document(newRef).UpdateAsync(dict).ContinueWithOnMainThread(onComplete);
     }
@@ -501,6 +509,8 @@ public class AuthController : SingletonNew<AuthController>
             {"engine", newProps.motorId},
             {"seat", newProps.koltukId},
             {"spoiler", newProps.ruzgarlikId},
+            {"color", newProps.renkId},
+            {"stil", newProps.stilId},
         };
 
         dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").AddAsync(dict).ContinueWithOnMainThread(onComplete);
@@ -568,6 +578,8 @@ public class AuthController : SingletonNew<AuthController>
                                             motorId = documentSnapshot.GetValue<int>("engine"),
                                             koltukId = documentSnapshot.GetValue<int>("seat"),
                                             ruzgarlikId = documentSnapshot.GetValue<int>("spoiler"),
+                                            renkId = documentSnapshot.TryGetValue("color", out int c) ? c : 0,//<int>("color"),
+                                            stilId = documentSnapshot.TryGetValue("stil", out int st) ? st : 0,//GetValue<int>("stil"),
                                         });
                                     }
 
@@ -584,6 +596,49 @@ public class AuthController : SingletonNew<AuthController>
                     return task;
                 }).Unwrap();
     }
+    
+    
+    public void LoadBestScores()
+    {
+        dbRef = FirebaseFirestore.DefaultInstance;
+
+        for (int j = 1; j <= GameManager.I.groundCount; j++)
+        {
+            var q = dbRef.Collection("Results").WhereEqualTo("userid", auth.CurrentUser.UserId)
+                .WhereEqualTo("combination.road", j).OrderBy("outcome.duration").Limit(9);
+            var j1 = j;
+            q.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCompleted)
+                {
+                    var l = new List<ScoreSingle>();
+                    foreach (var document in task.Result.Documents)
+                    {
+                        var p = new SavedCarProps
+                        {
+                            docPath = document.Id,
+                            kaportaId = document.GetValue<int>("combination.bodywork"),
+                            motorId = document.GetValue<int>("combination.engine"),
+                            koltukId = document.GetValue<int>("combination.seat"),
+                            ruzgarlikId = document.GetValue<int>("combination.spoiler"),
+                            lastikId = document.GetValue<int>("combination.tire"),
+                            renkId = document.GetValue<int>("combination.color"),
+                            stilId = document.GetValue<int>("combination.stil"),
+                            name = document.TryGetValue("combination.name", out string nm) ? nm : "",//GetValue<string>("combination.name"),
+                            saveId = -1,
+                        };
+                        var s = PartEffectController.I.GetSpeed(p, (PartEffectController.GroundType)j1);
+                        l.Add(new ScoreSingle {carProps = p, speed = s});
+                    }
+
+                    GameManager.I.bestScoresHolder.groundToBestCars[(PartEffectController.GroundType)j1] =
+                        l.OrderByDescending(score => score.speed).ToList();
+                }
+            });
+        }
+    }
+
+    
     
     private DocumentReference lastRef;
     private bool memberUpdateCompleted = false;

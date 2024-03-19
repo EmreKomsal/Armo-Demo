@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/0_Scenes/UIScene.unity
     guid: 0ab0ecf5acfbeb34c9f531612c88beb4
   - enabled: 1
+    path: Assets/0_Scenes/TempDanger.unity
+    guid: 1e21a43506e724c63ad4d8052c19806b
+  - enabled: 1
     path: Assets/0_Scenes/ARScene.unity
     guid: 6bdce89659816455b9f906fc62d19910
   m_configObjects:

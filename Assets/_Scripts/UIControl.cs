@@ -85,6 +85,11 @@ public class UIControl : SingletonNew<UIControl>
     public TMP_Text newCarNameText;
     public TMP_InputField newCarNameChangePopUpInputField;
 
+    public GameObject newCarColorChangePopUpParent;
+    public Button newCarColorChangeButton;
+    public Button newCarColorChangePopUpSaveButton;
+    public Button newCarColorChangePopUpRevertButton;
+    public List<ColorPickElement> colorPickElements;
 
 
     [Header("Tutorial Panel")]
@@ -131,7 +136,8 @@ public class UIControl : SingletonNew<UIControl>
     public TMP_Text profileNameText;
     public TMP_Text profileMailText;
     public TMP_Text profileUidText;
-    
+
+
     public List<PropertiesTableTab> tableTabs;
     private Dictionary<PropertiesTableTabType, PropertiesTableTab> tabTypesToTabs =
         new Dictionary<PropertiesTableTabType, PropertiesTableTab>();
@@ -198,6 +204,9 @@ public class UIControl : SingletonNew<UIControl>
         newCarSaveButton.onClick.AddListener(NewCarSave);
         newCarTogglePartButton.onClick.AddListener(NewCarToggleCar);
         newCarToggleCarButton.onClick.AddListener(NewCarTogglePart);
+        newCarColorChangeButton.onClick.AddListener(NewCarColorChangeOpen);
+        newCarColorChangePopUpSaveButton.onClick.AddListener(NewCarColorChangeCloseSave);
+        newCarColorChangePopUpRevertButton.onClick.AddListener(NewCarColorChangeCloseRevert);
         
         beginTanitimButton.onClick.AddListener(NextTanitimPanel);
         betweenTanitimButtonNext.onClick.AddListener(NextTanitimPanel);
@@ -220,6 +229,12 @@ public class UIControl : SingletonNew<UIControl>
         
         InitAllTabs();
 
+        for (int j = 0; j < colorPickElements.Count; j++)
+        {
+            colorPickElements[j].index = j;
+            colorPickElements[j].notPickedButton.onClick.AddListener(colorPickElements[j].Pick);
+        }
+        
         CheckInternet();
         if (internetReachable)
         {
@@ -479,7 +494,28 @@ public class UIControl : SingletonNew<UIControl>
 
     public void ToMainPanelFirstTime()
     {
+        didCarLoadEnd = false;
+        didBestScoresLoadEnd = false;
+        if (carLoadWaitRoutine != null)
+        {
+            StopCoroutine(carLoadWaitRoutine);
+        }
+        carLoadWaitRoutine = StartCoroutine(CarLoadWaitRoutine());
+        AuthController.I.LoadBestScores();
         AuthController.I.LoadCars(LoadCarsEnd);
+    }
+
+    private Coroutine carLoadWaitRoutine;
+
+    private IEnumerator CarLoadWaitRoutine()
+    {
+        while (!didCarLoadEnd && !didBestScoresLoadEnd)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        
+        SetWaitBG(false);
+        MainPanel();
     }
     
     public void LoadCarsEnd(Task task)
@@ -494,10 +530,32 @@ public class UIControl : SingletonNew<UIControl>
         }
         else if (task.IsCompleted)
         {
-            SetWaitBG(false);
-            MainPanel();
+            didCarLoadEnd = true;
+            // SetWaitBG(false);
+            // MainPanel();
+        }
+    }   
+    
+    public void LoadBestScoresEnd(Task task)
+    {
+        if (task.IsCanceled)
+        {
+            AuthController.I.LoadCars(LoadBestScoresEnd);
+        }
+        else if (task.IsFaulted)
+        {
+            AuthController.I.LoadCars(LoadBestScoresEnd);
+        }
+        else if (task.IsCompleted)
+        {
+            didBestScoresLoadEnd = true;
+            // SetWaitBG(false);
+            // MainPanel();
         }
     }
+
+    private bool didCarLoadEnd = false;
+    private bool didBestScoresLoadEnd = false;
 
     public void SuccessfullyRegisterScreen()
     {
@@ -715,7 +773,11 @@ public class UIControl : SingletonNew<UIControl>
     public void PlayPlay()
     {
         GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(playCarIndex));
-        SceneManager.LoadScene(2);
+        SetWaitBG(true);
+        UtilityRoutines.I.DelayedCall(0.6f, delegate
+        {
+            SceneManager.LoadScene(2);
+        });
     }
 
 
@@ -755,6 +817,55 @@ public class UIControl : SingletonNew<UIControl>
         newCarNameChangePopUpParent.SetActive(false);
         newCarNameText.text = newCarNameBuffer;
         editedCar.name = newCarNameBuffer;
+    }
+    public void NewCarColorChangeOpen()
+    {
+        newCarColorChangePopUpParent.SetActive(true);
+        lastPickedColor = editedCar.renkId;
+        previousColor = editedCar.renkId;
+        foreach (var colorPickElement in colorPickElements)
+        {
+            colorPickElement.ToNotPicked();
+        }
+        colorPickElements[editedCar.renkId].ToPicked();
+    }
+
+    public void SetColor(int newIndex)
+    {
+        lastPickedColor = newIndex;
+        if (lastPickedColor != previousColor)
+        {
+            PreviewController.I.SetColor(editedCar.kaportaId, lastPickedColor);
+        }
+    }
+    
+    private int lastPickedColor = 0;
+    private int previousColor = 0;
+    public void PickColor(int newIndex)
+    {
+        foreach (var colorPickElement in colorPickElements)
+        {
+            colorPickElement.ToNotPicked();
+        }
+        colorPickElements[editedCar.renkId].ToPicked();
+        if(newIndex != lastPickedColor)
+        {
+            SetColor(newIndex);
+        }
+    }
+    
+    public void NewCarColorChangeCloseSave()
+    {
+        newCarColorChangePopUpParent.SetActive(false);
+        editedCar.renkId = lastPickedColor;
+        SetColor(lastPickedColor);
+    }
+
+    public void NewCarColorChangeCloseRevert()
+    {
+        newCarColorChangePopUpParent.SetActive(false);
+        editedCar.renkId = previousColor;
+        SetColor(previousColor);
     }
     
     
@@ -911,6 +1022,7 @@ public class UIControl : SingletonNew<UIControl>
     public void SetLastTab(int id)
     {
         lastTabId = id;
+        PreviewController.I.SetPreview(isToggleCar, editedCar, lastTabId);
     }
     
     public void NewCarToggleCar()
@@ -985,6 +1097,9 @@ public class UIControl : SingletonNew<UIControl>
             case PropertiesTableTabType.Ruzgarlik:
                 editedCar.ruzgarlikId = newValue;
                 break;
+            case PropertiesTableTabType.Stil:
+                editedCar.stilId = newValue;
+                break;
             default:
                 break;
         }
@@ -1011,6 +1126,9 @@ public class UIControl : SingletonNew<UIControl>
                     break;
                 case PropertiesTableTabType.Ruzgarlik:
                     tableTab.Init(savedProps.ruzgarlikId);
+                    break;
+                case PropertiesTableTabType.Stil:
+                    tableTab.Init(savedProps.stilId);
                     break;
                 default:
                     tableTab.Init();

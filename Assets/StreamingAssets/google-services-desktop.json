@@ -7,20 +7,22 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1070232518841:android:e09207edb1a6db183adb68",
+        "mobilesdk_app_id": "1:1070232518841:ios:160b40116c3988213adb68",
         "android_client_info": {
           "package_name": "com.armoproject.armo"
         }
       },
-      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDy2OGlXX6mbn4r_UhHJHSNOWRAVmjx5jY"
+          "current_key": "AIzaSyBeMhKdRAsxfsHsuJRYGe248ytGaoUKjPI"
         }
       ],
       "services": {
+        "analytics_service": {
+          "status": 0
+        },
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "status": 1
         }
       }
     }

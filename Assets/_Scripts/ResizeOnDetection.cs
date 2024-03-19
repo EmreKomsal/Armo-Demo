@@ -14,11 +14,25 @@ public class ResizeOnDetection : MonoBehaviour
 
     public PartEffectController.GroundType groundType;
 
+    public string roadName;
+    public Color roadNameColor;
+    
+    
     public Transform carHolder;
 
     public Transform finishHolder;
 
     public GameObject car;
+
+    public GameObject ghostT;
+    
+    public Transform carHolder2;
+
+    public Transform finishHolder2;
+
+    public GameObject car2;
+
+    public bool IsGhostAvailable { get; private set; } = false;
 
     private DefaultObserverEventHandler observerEventHandler;
     private bool isTargetFound = false;
@@ -28,14 +42,20 @@ public class ResizeOnDetection : MonoBehaviour
 
 
     private float elapsed = 0f;
+    private float elapsedGhost = 0f;
+    
+    
     
     
     float speed = 0.3f;
-
     private float projSpeed = 0f;
     public float speedMlp = 1f;
     // float holdTime = 0.2f;
 
+    private float ghostSpeed;
+    private float ghostProjSpeed;
+    
+    
     public float lastSize;
 
     public float GetTimeMoving()
@@ -59,6 +79,8 @@ public class ResizeOnDetection : MonoBehaviour
         }
         // Get the DefaultObserverEventHandler component from the parent "ImageTarget"
         observerEventHandler = transform.parent.GetComponent<DefaultObserverEventHandler>();
+
+        ghostT.SetActive(false);
 
         if (observerEventHandler != null)
         {
@@ -96,6 +118,7 @@ public class ResizeOnDetection : MonoBehaviour
     // }
 
     private float lastSpeed = 0;
+    private float lastSpeedGhost = 0;
     
     
     
@@ -196,9 +219,20 @@ public class ResizeOnDetection : MonoBehaviour
 
     public void SpawnCar()
     {
-        Debug.Log("Hello");
+        // Debug.Log("Hello");
         gameManager.LoadCarPrefab(carHolder, true);
         car = gameManager.carPrefab;
+
+        if (gameManager.LoadGhostCar(groundType, carHolder2, true))
+        {
+            car2 = gameManager.bestScoresHolder.GetBestCarObject(groundType);
+            IsGhostAvailable = true;
+        }
+        else
+        {
+            IsGhostAvailable = false;
+        }
+        ghostT.SetActive(IsGhostAvailable);
     }
 
     private float curScaleMlpSpeed = 1f;
@@ -225,7 +259,29 @@ public class ResizeOnDetection : MonoBehaviour
         ARManager.I.Finish();
     }
 
+    private IEnumerator MoveGhostCarRoutine()
+    {
+        var curDur = PartEffectController.I.GetDuration(ghostSpeed);
+        elapsedGhost = 0f;
+        // ARManager.speedText.text = (projSpeed.ToString("F1") + " km/sa");
+        lastSpeedGhost = ghostProjSpeed;
+        while (elapsedGhost <= curDur)
+        {
+            car2.transform.position = Vector3.Lerp(carHolder2.position, finishHolder2.position, elapsedGhost / curDur);
+            yield return new WaitForEndOfFrame();
+            elapsedGhost += Time.deltaTime;
+            // ARManager.timerText.text = (elapsed.ToString("F") + " s");
+        }
+
+        elapsedGhost = curDur;
+        // ARManager.timerText.text = (elapsed.ToString("F") + " s");
+        car2.transform.position = finishHolder2.position;
+        
+        // ARManager.I.Finish();
+    }
+
     private Coroutine carMoveRoutine;
+    private Coroutine ghostCarMoveRoutine;
     
     public void StartCar()
     {
@@ -233,6 +289,18 @@ public class ResizeOnDetection : MonoBehaviour
         projSpeed = PartEffectController.I.GetProjectedSpeed(speed);
         curScaleMlpSpeed = lastSize / initialSize;
 
+        if (IsGhostAvailable)
+        {
+            ghostSpeed = gameManager.bestScoresHolder.GetBestSpeed(groundType);
+            ghostProjSpeed = PartEffectController.I.GetProjectedSpeed(ghostSpeed);
+            if (ghostCarMoveRoutine != null)
+            {
+                StopCoroutine(ghostCarMoveRoutine);
+            }
+
+            ghostCarMoveRoutine = StartCoroutine(MoveGhostCarRoutine());
+        }
+        
         if (carMoveRoutine != null)
         {
             StopCoroutine(carMoveRoutine);

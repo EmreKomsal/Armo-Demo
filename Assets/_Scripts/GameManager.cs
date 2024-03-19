@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,8 +15,18 @@ public class GameManager : SingletonNew<GameManager>
     string carsPath = "Cars";
     public GameObject carPrefab;
     public SavedCarProps lastCarProps;
-    public StartScreenType currentScreenType = StartScreenType.WelcomePanel;
+
+    public BestScoresHolder bestScoresHolder;
+    public int groundCount = 4;
+    [Range(0f, 1f)] public float ghostColorAlpha = 0.5f;
     
+    public StartScreenType currentScreenType = StartScreenType.WelcomePanel;
+    public List<Color> colors;
+    public string colorPropertyName = "_Color";
+    public int colorMaterialIndex = 0;
+    
+    public 
+
     void Start()
     {
         // Register the OnSceneLoaded event
@@ -46,7 +57,7 @@ public class GameManager : SingletonNew<GameManager>
 
         int i = 0;
 
-        Debug.Log(lastCarProps.kaportaId);
+        // Debug.Log(lastCarProps.kaportaId);
         // Instantiate each prefab as a child of the parentObject
         foreach (GameObject prefab in prefabs)
         {
@@ -58,10 +69,33 @@ public class GameManager : SingletonNew<GameManager>
                 CarData carDataComponent = carPrefab.GetComponent<CarData>();
                 if (carDataComponent != null)
                 {
-                    carDataComponent.SetPartsByID(lastCarProps.lastikId, lastCarProps.ruzgarlikId);
+                    carDataComponent.SetPartsByID(lastCarProps.lastikId, lastCarProps.ruzgarlikId, lastCarProps.renkId,
+                        lastCarProps.stilId, false);
                 }
             }
             i++;
+        }
+        
+        foreach (var ground in bestScoresHolder.groundToBestCars.Keys)
+        {
+            var bestCar = bestScoresHolder.GetBestCar(ground);
+            if (bestCar == null)
+            {
+                continue;
+            }
+            
+            var spawnedCar = Instantiate(prefabs[bestCar.kaportaId], parentObject);
+
+            spawnedCar.SetActive(false);
+            // After instantiating the car prefab
+            CarData carData = spawnedCar.GetComponent<CarData>();
+            if (carData != null)
+            {
+                carData.SetPartsByID(bestCar.lastikId, bestCar.ruzgarlikId, bestCar.renkId,
+                    bestCar.stilId, true);
+            }
+            
+            bestScoresHolder.groundToCarPrefabs[ground] = spawnedCar;
         }
     }
     
@@ -69,6 +103,19 @@ public class GameManager : SingletonNew<GameManager>
     public void SetCarProps(SavedCarProps newCarProps)
     {
         lastCarProps = newCarProps;
+    }
+
+    public bool LoadGhostCar(PartEffectController.GroundType wantedType, Transform parent, bool active)
+    {
+        var p = bestScoresHolder.GetBestCarObject(wantedType);
+        if (p != null)
+        {
+            p.transform.SetParent(parent, false);
+            p.SetActive(active);
+            return true;
+        }
+
+        return false;
     }
     
     public void LoadCarPrefab(Transform parent, bool active)

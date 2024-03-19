@@ -8,6 +8,97 @@ using System.Threading.Tasks;
 using Firebase.Firestore;
 using TMPro;
 
+[Serializable]
+public class MenuTableController
+{
+    public TMP_Text groundTypeText;
+    public List<Row> rows;
+    public GameObject failObj;
+    public Row failRow;
+
+    public Color playerPlaceBgColor;
+    public Color playerStatBgColor;
+    public Color npcPlaceBgColor;
+    public Color npcStatBgColor;
+
+
+    public void SetMenu(SavedCarProps currentProps, ResizeOnDetection currentRoad)
+    {
+        var firstRowListOpenCount = 1;
+        var didFail = false;
+        if (!GameManager.I.bestScoresHolder.groundToBestCars.ContainsKey(currentRoad.groundType))
+        {
+            foreach (var row in rows)
+            {
+                row.SetActive(false);
+            }
+
+            rows[0].SetRecord(1, true, currentProps,
+                PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
+            rows[0].SetActive(true);
+        }
+        else
+        {
+            var playerSpeed = PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType);
+            var count = 0;
+            var playerPlacement = -1;
+            for (int i = 0; i < GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType].Count; i++)
+            {
+                if (playerSpeed >= GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i].speed)
+                {
+                    playerPlacement = i;
+                    break;
+                }
+                
+                count++;
+                
+                if (count >= 9)
+                {
+                    break;
+                }
+            }
+
+            foreach (var row in rows)
+            {
+                row.SetActive(false);
+            }
+            
+            if (playerPlacement < 0)
+            {
+                for (int i = 0; i < 9; i++)
+                {
+                    var score =  GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i];
+                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
+                    rows[i].SetActive(true);
+                }
+                failObj.SetActive(true);
+                failRow.SetRecord(-1, true, currentProps,
+                    PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
+                failRow.SetActive(true);
+            }
+            else
+            {
+                failObj.SetActive(false);
+                for (int i = 0; i < playerPlacement; i++)
+                {
+                    var score =  GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i];
+                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
+                    rows[i].SetActive(true);
+                }
+                rows[playerPlacement].SetRecord(playerPlacement, true, currentProps,
+                    PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
+                rows[playerPlacement].SetActive(true);
+                for (int i = playerPlacement+1; i < 10; i++)
+                {
+                    var score =  GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i-1];
+                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
+                    rows[i].SetActive(true);
+                }
+            }
+        }
+    }
+}
+
 public class ARManager : SingletonNew<ARManager>
 {
     [Header("Info Components")]
@@ -54,6 +145,8 @@ public class ARManager : SingletonNew<ARManager>
     public Button menu_newcarBtn;
     public Button menu_restartBtn;
 
+    public MenuTableController menuTableController;
+    
     void Start()
     {
         Debug.Log("ARManager Start method called."); // This should appear in the console when the scene starts
@@ -128,7 +221,6 @@ public class ARManager : SingletonNew<ARManager>
 
     #region RoadResize
 
-    public List<ResizeOnDetection> allRoads;
 
     [Header("PistSize Varibeles")]
     public ResizeOnDetection currentRoad = null;
@@ -276,7 +368,10 @@ public class ARManager : SingletonNew<ARManager>
     private void ARM_LoadMenu() 
     {
         SetWaitBG(true);
-        AuthController.I.SendResult(GameManager.I.lastCarProps, currentRoad.groundType, currentRoad.GetTimeMoving(), currentRoad.GetSpeed(), PartEffectController.I.GetMass(GameManager.I.lastCarProps), LoadMenu);
+        AuthController.I.SendResult(GameManager.I.lastCarProps, currentRoad.groundType,
+            currentRoad.GetTimeMoving(), currentRoad.GetSpeed(),
+            PartEffectController.I.GetMass(GameManager.I.lastCarProps), LoadMenu);
+        
     }
 
     public void LoadMenu(Task<DocumentReference> task)
@@ -284,16 +379,16 @@ public class ARManager : SingletonNew<ARManager>
         if (task.IsCanceled)
         {
             SetWaitBG(false);
-            EndMenu.SetActive(false);
-            LastMenu.SetActive(true);
+            EndMenu.SetActive(true);
+            LastMenu.SetActive(false);
             return;
         }
 
         if (task.IsFaulted)
         {
             SetWaitBG(false);
-            EndMenu.SetActive(false);
-            LastMenu.SetActive(true);
+            EndMenu.SetActive(true);
+            LastMenu.SetActive(false);
             return;
         }
 
@@ -302,6 +397,10 @@ public class ARManager : SingletonNew<ARManager>
             SetWaitBG(false);
             EndMenu.SetActive(false);
             LastMenu.SetActive(true);
+            
+            
+            GameManager.I.bestScoresHolder.AddToDictionary(currentRoad.groundType, GameManager.I.lastCarProps,
+                currentRoad.GetSpeed());
             return;
         }
     }

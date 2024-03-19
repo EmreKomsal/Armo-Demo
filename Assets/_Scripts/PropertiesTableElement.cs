@@ -11,6 +11,7 @@ public enum PropertiesTableTabType
     Motor = 2,
     Koltuk = 3,
     Ruzgarlik = 4,
+    Stil = 5,
 }
 
 public class PropertiesTableElement : MonoBehaviour
