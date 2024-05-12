@@ -87,7 +87,7 @@ public class UIControl : SingletonNew<UIControl>
 
     public GameObject newCarColorChangePopUpParent;
     public Button newCarColorChangeButton;
-    public Button newCarColorChangePopUpSaveButton;
+    // public Button newCarColorChangePopUpSaveButton;
     public Button newCarColorChangePopUpRevertButton;
     public List<ColorPickElement> colorPickElements;
 
@@ -205,7 +205,7 @@ public class UIControl : SingletonNew<UIControl>
         newCarTogglePartButton.onClick.AddListener(NewCarToggleCar);
         newCarToggleCarButton.onClick.AddListener(NewCarTogglePart);
         newCarColorChangeButton.onClick.AddListener(NewCarColorChangeOpen);
-        newCarColorChangePopUpSaveButton.onClick.AddListener(NewCarColorChangeCloseSave);
+        // newCarColorChangePopUpSaveButton.onClick.AddListener(NewCarColorChangeCloseSave);
         newCarColorChangePopUpRevertButton.onClick.AddListener(NewCarColorChangeCloseRevert);
         
         beginTanitimButton.onClick.AddListener(NextTanitimPanel);
@@ -501,6 +501,7 @@ public class UIControl : SingletonNew<UIControl>
             StopCoroutine(carLoadWaitRoutine);
         }
         carLoadWaitRoutine = StartCoroutine(CarLoadWaitRoutine());
+        AuthController.I.LoadAssistant();
         AuthController.I.LoadBestScores();
         AuthController.I.LoadCars(LoadCarsEnd);
     }
@@ -510,6 +511,11 @@ public class UIControl : SingletonNew<UIControl>
     private IEnumerator CarLoadWaitRoutine()
     {
         while (!didCarLoadEnd && !didBestScoresLoadEnd)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        while (!AuthController.I.IsAssistantLoadEnd)
         {
             yield return new WaitForEndOfFrame();
         }
@@ -536,23 +542,6 @@ public class UIControl : SingletonNew<UIControl>
         }
     }   
     
-    public void LoadBestScoresEnd(Task task)
-    {
-        if (task.IsCanceled)
-        {
-            AuthController.I.LoadCars(LoadBestScoresEnd);
-        }
-        else if (task.IsFaulted)
-        {
-            AuthController.I.LoadCars(LoadBestScoresEnd);
-        }
-        else if (task.IsCompleted)
-        {
-            didBestScoresLoadEnd = true;
-            // SetWaitBG(false);
-            // MainPanel();
-        }
-    }
 
     private bool didCarLoadEnd = false;
     private bool didBestScoresLoadEnd = false;
@@ -783,11 +772,18 @@ public class UIControl : SingletonNew<UIControl>
 
     public void NewCarBack()
     {
+        AssistantController.I.SaveConfirmationBypass = false;
         MainPanel();
     }
-
+    
+    
     public void NewCarSave()
     {
+        if (!AssistantController.I.SaveConfirmationBypass && AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarSaveConfirmation))
+        {
+            AssistantController.I.SaveConfirmationBypass = true;
+            return;
+        }
         if (isEditing)
         {
             SaveCarController.I.EditCar(editedCar.saveId, editedCar);
@@ -850,7 +846,12 @@ public class UIControl : SingletonNew<UIControl>
         colorPickElements[editedCar.renkId].ToPicked();
         if(newIndex != lastPickedColor)
         {
-            SetColor(newIndex);
+            lastPickedColor = newIndex;
+            NewCarColorChangeCloseSave();
+        }
+        else
+        {
+            newCarColorChangePopUpParent.SetActive(false);
         }
     }
     
@@ -867,9 +868,9 @@ public class UIControl : SingletonNew<UIControl>
         editedCar.renkId = previousColor;
         SetColor(previousColor);
     }
-    
-    
-    
+
+
+    public bool DidSaveCar { get; set; } = false;
     
     public void MainPanel()
     {
@@ -881,6 +882,15 @@ public class UIControl : SingletonNew<UIControl>
         if (!AuthController.I.DidLoadCars)
         {
             ToMainPanelFirstTime();
+        }
+
+        if (AuthController.I.IsAssistantLoadEnd)
+        {
+            if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.AfterRegister) && DidSaveCar)
+            {
+                DidSaveCar = false;
+                AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.AfterCreatingCar);
+            }
         }
     }
     
@@ -1017,6 +1027,13 @@ public class UIControl : SingletonNew<UIControl>
         CloseAllTabs();
         tableTabs[0].Select();
         NewCarToggleCar();
+        if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarName, delegate
+            {
+                AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarPartToggle);
+            }))
+        {
+            AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarPartToggle);
+        }
     }
 
     public void SetLastTab(int id)

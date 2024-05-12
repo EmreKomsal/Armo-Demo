@@ -128,7 +128,9 @@ public class SaveCarController : SingletonNew<SaveCarController>
             if (task.IsCompleted)
             {
                 savedCars[wantedIndex] = newProps;
+                AssistantController.I.SaveConfirmationBypass = false;
                 UpdatePrefs();
+                UIControl.I.DidSaveCar = true;
                 UIControl.I.SetWaitBG(false);
                 UIControl.I.MainPanel();
             }
@@ -159,8 +161,10 @@ public class SaveCarController : SingletonNew<SaveCarController>
                 newProps.docPath = task.Result.Id;
                 savedCars.Add(newProps);
                 carCount++;
+                AssistantController.I.SaveConfirmationBypass = false;
                 PlayerPrefs.SetInt("SavedCarCount", carCount);
                 UpdatePrefs();
+                UIControl.I.DidSaveCar = true;
                 UIControl.I.SetWaitBG(false);
                 UIControl.I.MainPanel();
             }

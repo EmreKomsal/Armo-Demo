@@ -40,13 +40,13 @@ public class Row : MonoBehaviour
             agirlikBg.color = ARManager.I.menuTableController.npcStatBgColor;
         }
 
-        placementText.text = placement.ToString();
+        placementText.SetText(placement.ToString());
         var projSpeed = PartEffectController.I.GetProjectedSpeed(speed);
-        hizText.text = (projSpeed.ToString("F1") + " km/sa");
+        hizText.SetText((projSpeed.ToString("F1") + " km/sa"));
 
-        agirlikText.text = Mathf.FloorToInt(PartEffectController.I.GetMass(props)).ToString() + " Kg";
+        agirlikText.SetText(Mathf.FloorToInt(PartEffectController.I.GetMass(props)).ToString() + " Kg");
 
         var elapsed = PartEffectController.I.GetDuration(speed);
-        sureText.text = (elapsed.ToString("F") + " s");
+        sureText.SetText((elapsed.ToString("F") + " s"));
     }
 }

@@ -56,7 +56,7 @@ public class GameManager : SingletonNew<GameManager>
         }
 
         int i = 0;
-
+        
         // Debug.Log(lastCarProps.kaportaId);
         // Instantiate each prefab as a child of the parentObject
         foreach (GameObject prefab in prefabs)

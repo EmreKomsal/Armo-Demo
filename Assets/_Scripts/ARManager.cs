@@ -26,16 +26,19 @@ public class MenuTableController
     {
         var firstRowListOpenCount = 1;
         var didFail = false;
-        if (!GameManager.I.bestScoresHolder.groundToBestCars.ContainsKey(currentRoad.groundType))
+        groundTypeText.SetText(currentRoad.roadName);
+        if (!GameManager.I.bestScoresHolder.groundToBestCars.ContainsKey(currentRoad.groundType) ||
+            GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType].Count == 0)
         {
             foreach (var row in rows)
             {
                 row.SetActive(false);
             }
 
+            rows[0].SetActive(true);
             rows[0].SetRecord(1, true, currentProps,
                 PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
-            rows[0].SetActive(true);
+            failObj.SetActive(false);
         }
         else
         {
@@ -49,9 +52,9 @@ public class MenuTableController
                     playerPlacement = i;
                     break;
                 }
-                
+
                 count++;
-                
+
                 if (count >= 9)
                 {
                     break;
@@ -62,37 +65,39 @@ public class MenuTableController
             {
                 row.SetActive(false);
             }
-            
+
             if (playerPlacement < 0)
             {
                 for (int i = 0; i < 9; i++)
                 {
-                    var score =  GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i];
-                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
+                    var score = GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i];
                     rows[i].SetActive(true);
+                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
                 }
+
                 failObj.SetActive(true);
+                failRow.SetActive(true);
                 failRow.SetRecord(-1, true, currentProps,
                     PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
-                failRow.SetActive(true);
             }
             else
             {
                 failObj.SetActive(false);
                 for (int i = 0; i < playerPlacement; i++)
                 {
-                    var score =  GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i];
-                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
+                    var score = GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i];
                     rows[i].SetActive(true);
+                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
                 }
-                rows[playerPlacement].SetRecord(playerPlacement, true, currentProps,
-                    PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
+
                 rows[playerPlacement].SetActive(true);
-                for (int i = playerPlacement+1; i < 10; i++)
+                rows[playerPlacement].SetRecord(playerPlacement+1, true, currentProps,
+                    PartEffectController.I.GetSpeed(currentProps, currentRoad.groundType));
+                for (int i = playerPlacement + 1; i < 10; i++)
                 {
-                    var score =  GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i-1];
-                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
+                    var score = GameManager.I.bestScoresHolder.groundToBestCars[currentRoad.groundType][i - 1];
                     rows[i].SetActive(true);
+                    rows[i].SetRecord(i + 1, false, score.carProps, score.speed);
                 }
             }
         }
@@ -369,7 +374,7 @@ public class ARManager : SingletonNew<ARManager>
     {
         SetWaitBG(true);
         AuthController.I.SendResult(GameManager.I.lastCarProps, currentRoad.groundType,
-            currentRoad.GetTimeMoving(), currentRoad.GetSpeed(),
+            currentRoad.GetTimeMoving(), currentRoad.GetProjSpeed(),
             PartEffectController.I.GetMass(GameManager.I.lastCarProps), LoadMenu);
         
     }
@@ -398,9 +403,8 @@ public class ARManager : SingletonNew<ARManager>
             EndMenu.SetActive(false);
             LastMenu.SetActive(true);
             
-            
-            GameManager.I.bestScoresHolder.AddToDictionary(currentRoad.groundType, GameManager.I.lastCarProps,
-                currentRoad.GetSpeed());
+            menuTableController.SetMenu(GameManager.I.lastCarProps, currentRoad);
+            GameManager.I.bestScoresHolder.AddToDictionary(currentRoad.groundType, new SavedCarProps(GameManager.I.lastCarProps));
             return;
         }
     }

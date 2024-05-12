@@ -28,7 +28,7 @@ public class AuthController : SingletonNew<AuthController>
     public string customParameterValue1 = "";
     public string customParameterKey2 = "";
     public string customParameterValue2 = "";
-
+    
     public bool isStudent = true;
     
     protected bool signInAndFetchProfile = false;
@@ -104,8 +104,9 @@ public class AuthController : SingletonNew<AuthController>
             return;
         }
 
-        var combinationMap = new Dictionary<string, object>
+        Dictionary<string, object> dict = new Dictionary<string, object>
         {
+            {"appversion", Application.version},
             {"bodywork", newProps.kaportaId},
             {"engine", newProps.motorId},
             {"road", (int)newGroundType},
@@ -115,22 +116,11 @@ public class AuthController : SingletonNew<AuthController>
             {"name", newProps.name},
             {"color", newProps.renkId},
             {"stil", newProps.stilId},
-        };
-
-        var outcomeMap = new Dictionary<string, object>
-        {
             {"consumption", 0},
             {"duration", duration},
             {"friction", 0},
             {"mass", mass},
             {"speed", speed},
-        };
-
-        Dictionary<string, object> dict = new Dictionary<string, object>
-        {
-            {"appversion", Application.version},
-            {"combination", combinationMap},
-            {"outcome", outcomeMap},
             {"timestamp", Timestamp.GetCurrentTimestamp()},
             {"userid", auth.CurrentUser.UserId},
         };
@@ -522,8 +512,115 @@ public class AuthController : SingletonNew<AuthController>
         dbRef.Collection("Users").Document(auth.CurrentUser.UserId).Collection("cars").Document(newRef).DeleteAsync().ContinueWithOnMainThread(onComplete);
     }
 
-    public bool DidLoadCars { get; set; } = false;
+    public bool IsAssistant { get; set; } = true;
+    public bool IsAssistantLoadEnd { get; set; } = false;
+
     
+    public async void LoadAssistant()
+    {
+        UIControl.I.SetWaitBG(true);
+        dbRef = FirebaseFirestore.DefaultInstance;
+        var snap = await dbRef.Collection("Users").Document(auth.CurrentUser.UserId).GetSnapshotAsync();
+
+        string tempGroup = "";
+        if (snap.Exists)
+        {
+            tempGroup = snap.GetValue<string>("groupid");
+        }
+        else
+        {
+            IsAssistant = true;
+            IsAssistantLoadEnd = true;
+            return;
+        }
+
+        var snap2 = await dbRef.Collection("Groups").Document(tempGroup).GetSnapshotAsync();
+
+        if (snap2.Exists)
+        {
+            if (snap2.ContainsField("assistantActive"))
+            {
+                IsAssistant = snap2.GetValue<bool>("assistantActive");
+            }
+            else
+            {
+                IsAssistant = true;
+                IsAssistantLoadEnd = true;
+                return;
+            }
+        }
+        
+        IsAssistantLoadEnd = true;
+        
+        /*.ContinueWithOnMainThread(
+    task =>
+            {
+                if (task.IsCanceled)
+                {
+                    UIControl.I.SetWaitBG(false);
+                    return task;
+                }
+
+                if (task.IsFaulted)
+                {
+                    UIControl.I.SetWaitBG(false);
+                    return task;
+                }
+
+                if (task.IsCompleted)
+                {
+                    dbRef.Collection("Users").Document(auth.CurrentUser.UserId).GetSnapshotAsync()
+                        .ContinueWithOnMainThread(task1 =>
+                        {
+                            if (task1.IsCanceled)
+                            {
+                                UIControl.I.SetWaitBG(false);
+                                return task1;
+                            }
+
+                            if (task1.IsFaulted)
+                            {
+                                UIControl.I.SetWaitBG(false);
+                                return task1;
+                            }
+
+                            if (task1.IsCompleted)
+                            {
+                                isStudent = task1.Result.GetValue<string>("role") == "student";
+                                SaveCarController.I.ClearCars();
+                                SaveCarController.I.SetCarCount(task.Result.Count);
+                                foreach (var documentSnapshot in task.Result.Documents)
+                                {
+                                    SaveCarController.I.AddCar(new SavedCarProps
+                                    {
+                                        docPath = documentSnapshot.Id,
+                                        name = documentSnapshot.GetValue<string>("name"),
+                                        kaportaId = documentSnapshot.GetValue<int>("bodywork"),
+                                        lastikId = documentSnapshot.GetValue<int>("tire"),
+                                        motorId = documentSnapshot.GetValue<int>("engine"),
+                                        koltukId = documentSnapshot.GetValue<int>("seat"),
+                                        ruzgarlikId = documentSnapshot.GetValue<int>("spoiler"),
+                                        renkId = documentSnapshot.TryGetValue("color", out int c) ? c : 0,//<int>("color"),
+                                        stilId = documentSnapshot.TryGetValue("stil", out int st) ? st : 0,//GetValue<int>("stil"),
+                                    });
+                                }
+
+                                DidLoadCars = true;
+                                onComplete?.Invoke(task);
+                                return task1;
+                            }
+                            return task1;
+                        }).Unwrap();
+
+                    return task;
+                }
+
+                return task;
+            }).Unwrap();*/
+    }
+    
+    public bool DidLoadCars { get; set; } = false;
+
     public Task LoadCars(Action<Task> onComplete)
     {
         UIControl.I.SetWaitBG(true);
@@ -568,7 +665,6 @@ public class AuthController : SingletonNew<AuthController>
                                     SaveCarController.I.SetCarCount(task.Result.Count);
                                     foreach (var documentSnapshot in task.Result.Documents)
                                     {
-                                        Debug.Log(documentSnapshot.Id);
                                         SaveCarController.I.AddCar(new SavedCarProps
                                         {
                                             docPath = documentSnapshot.Id,
@@ -596,45 +692,74 @@ public class AuthController : SingletonNew<AuthController>
                     return task;
                 }).Unwrap();
     }
-    
-    
-    public void LoadBestScores()
+
+    public async void LoadBestScores()
     {
         dbRef = FirebaseFirestore.DefaultInstance;
 
         for (int j = 1; j <= GameManager.I.groundCount; j++)
         {
             var q = dbRef.Collection("Results").WhereEqualTo("userid", auth.CurrentUser.UserId)
-                .WhereEqualTo("combination.road", j).OrderBy("outcome.duration").Limit(9);
+                .WhereEqualTo("road", j).OrderBy("duration").Limit(9);
             var j1 = j;
-            q.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+            var snapshot = await q.GetSnapshotAsync();//.ContinueWithOnMainThread(task =>
+            var l = new List<ScoreSingle>();
+            foreach (var document in snapshot.Documents)
             {
-                if (task.IsCompleted)
+                var p = new SavedCarProps
                 {
-                    var l = new List<ScoreSingle>();
-                    foreach (var document in task.Result.Documents)
-                    {
-                        var p = new SavedCarProps
-                        {
-                            docPath = document.Id,
-                            kaportaId = document.GetValue<int>("combination.bodywork"),
-                            motorId = document.GetValue<int>("combination.engine"),
-                            koltukId = document.GetValue<int>("combination.seat"),
-                            ruzgarlikId = document.GetValue<int>("combination.spoiler"),
-                            lastikId = document.GetValue<int>("combination.tire"),
-                            renkId = document.GetValue<int>("combination.color"),
-                            stilId = document.GetValue<int>("combination.stil"),
-                            name = document.TryGetValue("combination.name", out string nm) ? nm : "",//GetValue<string>("combination.name"),
-                            saveId = -1,
-                        };
-                        var s = PartEffectController.I.GetSpeed(p, (PartEffectController.GroundType)j1);
-                        l.Add(new ScoreSingle {carProps = p, speed = s});
-                    }
+                    docPath = document.Id,
+                    kaportaId = document.GetValue<int>("bodywork"),
+                    motorId = document.GetValue<int>("engine"),
+                    koltukId = document.GetValue<int>("seat"),
+                    ruzgarlikId = document.GetValue<int>("spoiler"),
+                    lastikId = document.GetValue<int>("tire"),
+                    renkId = document.GetValue<int>("color"),
+                    stilId = document.GetValue<int>("stil"),
+                    name = document.TryGetValue("name", out string nm) ? nm : "",//GetValue<string>("combination.name"),
+                    saveId = -1,
+                };
+                var s = PartEffectController.I.GetSpeed(p, (PartEffectController.GroundType)j1);
+                l.Add(new ScoreSingle {carProps = p, speed = s});
+            }
 
-                    GameManager.I.bestScoresHolder.groundToBestCars[(PartEffectController.GroundType)j1] =
-                        l.OrderByDescending(score => score.speed).ToList();
-                }
-            });
+            GameManager.I.bestScoresHolder.groundToBestCars[(PartEffectController.GroundType)j1] =
+                l.OrderByDescending(score => score.speed).ToList();
+            // Debug.LogError((PartEffectController.GroundType)j1 + "_" + GameManager.I.bestScoresHolder
+            //     .groundToBestCars[(PartEffectController.GroundType)j1].Count);
+            // {
+            //     if (task.IsCompleted)
+            //     {
+            //         var l = new List<ScoreSingle>();
+            //         foreach (var document in task.Result.Documents)
+            //         {
+            //             var p = new SavedCarProps
+            //             {
+            //                 docPath = document.Id,
+            //                 kaportaId = document.GetValue<int>("bodywork"),
+            //                 motorId = document.GetValue<int>("engine"),
+            //                 koltukId = document.GetValue<int>("seat"),
+            //                 ruzgarlikId = document.GetValue<int>("spoiler"),
+            //                 lastikId = document.GetValue<int>("tire"),
+            //                 renkId = document.GetValue<int>("color"),
+            //                 stilId = document.GetValue<int>("stil"),
+            //                 name = document.TryGetValue("name", out string nm) ? nm : "",//GetValue<string>("combination.name"),
+            //                 saveId = -1,
+            //             };
+            //             var s = PartEffectController.I.GetSpeed(p, (PartEffectController.GroundType)j1);
+            //             l.Add(new ScoreSingle {carProps = p, speed = s});
+            //         }
+            //
+            //         GameManager.I.bestScoresHolder.groundToBestCars[(PartEffectController.GroundType)j1] =
+            //             l.OrderByDescending(score => score.speed).ToList();
+            //         Debug.LogError((PartEffectController.GroundType)j1 + "_" + GameManager.I.bestScoresHolder
+            //             .groundToBestCars[(PartEffectController.GroundType)j1].Count);
+            //     }
+            //     else
+            //     {
+            //         Debug.LogError("anan");
+            //     }
+            // });
         }
     }
 

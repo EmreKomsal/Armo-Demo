@@ -65,6 +65,11 @@ public class ResizeOnDetection : MonoBehaviour
 
     public float GetSpeed()
     {
+        return speed;
+    }
+    
+    public float GetProjSpeed()
+    {
         return lastSpeed;
     }
     

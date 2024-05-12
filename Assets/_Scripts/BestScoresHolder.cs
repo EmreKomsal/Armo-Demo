@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Firebase.Firestore;
 using UnityEngine;
 
+[Serializable]
 public class BestScoresHolder
 {
     public Dictionary<PartEffectController.GroundType, List<ScoreSingle>> groundToBestCars =
@@ -40,15 +41,16 @@ public class BestScoresHolder
             {
                 return null;
             }
-            return groundToBestCars[groundType][0].carProps;
+            return new SavedCarProps(groundToBestCars[groundType][0].carProps);
         }
 
         return null;
     }
 
-    public void AddToDictionary(PartEffectController.GroundType groundType, SavedCarProps carProps, float speed)
+    public void AddToDictionary(PartEffectController.GroundType groundType, SavedCarProps carProps)
     {
-        if (!groundToBestCars.ContainsKey(groundType))
+        var speed = PartEffectController.I.GetSpeed(carProps, groundType);
+        if (!groundToBestCars.ContainsKey(groundType) || groundToBestCars[groundType] == null)
         {
             groundToBestCars[groundType] = new List<ScoreSingle>();
             groundToBestCars[groundType].Add(new ScoreSingle { carProps = carProps, speed = speed });
@@ -63,7 +65,15 @@ public class BestScoresHolder
                     break;
                 }
             }
-            groundToBestCars[groundType].Insert(found, new ScoreSingle { carProps = carProps, speed = speed });
+
+            if (found >= groundToBestCars[groundType].Count)
+            {
+                groundToBestCars[groundType].Add(new ScoreSingle { carProps = carProps, speed = speed });
+            }
+            else
+            {
+                groundToBestCars[groundType].Insert(found, new ScoreSingle { carProps = carProps, speed = speed });
+            }
         }
     }
 }
