@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -417,6 +418,8 @@ public class UIControl : SingletonNew<UIControl>
             SetWaitBG(false);
         }
     }
+
+    public bool DidOpenRegisterPanel { get; set; } = false;
     
     public void RegisterScreen()
     {
@@ -426,6 +429,11 @@ public class UIControl : SingletonNew<UIControl>
         registerEmailInputField.text = "";
         registerPasswordInputField.text = "";
         registerRefInputField.text = "";
+        if (!DidOpenRegisterPanel)
+        {
+            AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.DuringRegister);
+            DidOpenRegisterPanel = true;
+        }
     }
 
     public void Register()
@@ -779,11 +787,11 @@ public class UIControl : SingletonNew<UIControl>
     
     public void NewCarSave()
     {
-        if (!AssistantController.I.SaveConfirmationBypass && AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarSaveConfirmation))
-        {
-            AssistantController.I.SaveConfirmationBypass = true;
-            return;
-        }
+        // if (!AssistantController.I.SaveConfirmationBypass && AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarSaveConfirmation))
+        // {
+        //     AssistantController.I.SaveConfirmationBypass = true;
+        //     return;
+        // }
         if (isEditing)
         {
             SaveCarController.I.EditCar(editedCar.saveId, editedCar);
@@ -794,7 +802,9 @@ public class UIControl : SingletonNew<UIControl>
         }
         // MainPanel();
     }
-    
+
+
+    public UnityAction onNameChangeClose = null;
     public void NewCarNameChangeOpen()
     {
         newCarNameChangePopUpParent.SetActive(true);
@@ -805,6 +815,8 @@ public class UIControl : SingletonNew<UIControl>
     {
         newCarNameChangePopUpParent.SetActive(false);
         newCarNameText.text = newCarNameBuffer;
+        onNameChangeClose?.Invoke();
+        onNameChangeClose = null;
     }
     
     public void NewCarNameChangeCloseSave()
@@ -813,6 +825,8 @@ public class UIControl : SingletonNew<UIControl>
         newCarNameChangePopUpParent.SetActive(false);
         newCarNameText.text = newCarNameBuffer;
         editedCar.name = newCarNameBuffer;
+        onNameChangeClose?.Invoke();
+        onNameChangeClose = null;
     }
     public void NewCarColorChangeOpen()
     {
@@ -886,13 +900,14 @@ public class UIControl : SingletonNew<UIControl>
 
         if (AuthController.I.IsAssistantLoadEnd)
         {
-            if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.AfterRegister) && DidSaveCar)
+            if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.MenuOverlay0, AssistantController.I.MenuOverlay0End) && DidSaveCar)
             {
                 DidSaveCar = false;
-                AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.AfterCreatingCar);
+                AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.MenuAfterCreateCar, AssistantController.I.MenuAfterCreateCarEnd);
             }
         }
     }
+    
     
     public void GaragePanel()
     {
@@ -1007,6 +1022,7 @@ public class UIControl : SingletonNew<UIControl>
     public void NewCarPanel(int editIndex = -1)
     {
         isGarage = false;
+        AssistantController.I.TabChangeComplete = false;
         CloseAllParents();
         PreviewController.I.ActivatePreview();
         newCarPanelParent.SetActive(true);
@@ -1027,19 +1043,24 @@ public class UIControl : SingletonNew<UIControl>
         CloseAllTabs();
         tableTabs[0].Select();
         NewCarToggleCar();
-        if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarName, delegate
-            {
-                AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarPartToggle);
-            }))
-        {
-            AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarPartToggle);
-        }
+
+        AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.NewCarOverlay0,
+            AssistantController.I.NewCarOverlay0End);
+        // if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.NewCarOverlay0, delegate
+        //     {
+        //         AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarPartToggle);
+        //     }))
+        // {
+        //     AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.CarPartToggle);
+        // }
     }
 
     public void SetLastTab(int id)
     {
         lastTabId = id;
         PreviewController.I.SetPreview(isToggleCar, editedCar, lastTabId);
+        AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.NewCarOverlay7,
+            AssistantController.I.NewCarOverlay7End);
     }
     
     public void NewCarToggleCar()

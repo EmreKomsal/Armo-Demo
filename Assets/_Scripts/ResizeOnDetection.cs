@@ -258,6 +258,7 @@ public class ResizeOnDetection : MonoBehaviour
         }
 
         elapsed = curDur;
+        ARManager.DurationLast = curDur;
         ARManager.timerText.text = (elapsed.ToString("F") + " s");
         car.transform.position = finishHolder.position;
         

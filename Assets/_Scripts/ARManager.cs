@@ -106,6 +106,8 @@ public class MenuTableController
 
 public class ARManager : SingletonNew<ARManager>
 {
+    public float DurationLast { get; set; } = 0f;
+    
     [Header("Info Components")]
     public GameObject InfoMenu;
     // public GameObject arInfoMenu;
@@ -244,6 +246,7 @@ public class ARManager : SingletonNew<ARManager>
             currentRoad = temp_road;
             pistSize.text = currentRoad.gameObject.transform.localScale.x.ToString();
             PistMenu.SetActive(true);
+            AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType.ARPistOverlay);
             InfoMenu.SetActive(false);
             return;
         }
@@ -275,6 +278,15 @@ public class ARManager : SingletonNew<ARManager>
         currentRoad.SpawnCar();
         PistMenu.SetActive(false);
         StartMenu.SetActive(true);
+        if (currentRoad.IsGhostAvailable)
+        {
+            AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType.ARYarisaBaslaGhostOverlay0,
+                delegate
+                {
+                    AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                        .ARYarisaBaslaGhostOverlay1);
+                });
+        }
     }
     #endregion
 
@@ -314,6 +326,9 @@ public class ARManager : SingletonNew<ARManager>
     //     timerText.text = currentRoad.UpdateTimer();
     // }
 
+    public bool ForcedCarChange { get; set; } = false;
+    public bool ForcedGroundChange { get; set; } = false;
+    
     public void Finish()
     {
         RaceMenu.SetActive(false);
@@ -326,6 +341,13 @@ public class ARManager : SingletonNew<ARManager>
         menu_speedText.text = speedText.text;
         menu_timeText.text = timerText.text;
         menu_frictionText.text = end_agirlikText.text;
+        
+        
+        if (DurationLast >= 5f)
+        {
+            AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                .ARYarisSonuMoreThan5Seconds);
+        }
     }
     
     // private void CheckFinish() 
@@ -404,6 +426,41 @@ public class ARManager : SingletonNew<ARManager>
             LastMenu.SetActive(true);
             
             menuTableController.SetMenu(GameManager.I.lastCarProps, currentRoad);
+            
+            if (DurationLast >= 5f)
+            {
+                if (!ForcedCarChange)
+                {
+                    ForcedCarChange = true;
+                    ForcedGroundChange = false;
+                    AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                        .ARSonEkranMoreThan5SecondsForce);
+                }
+                else
+                {
+                    ForcedCarChange = false;
+                    ForcedGroundChange = false;
+                    AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                        .ARSonEkranMoreThan5SecondsNoForce);
+                }
+            }
+            else
+            {
+                if (!ForcedGroundChange)
+                {
+                    ForcedCarChange = false;
+                    ForcedGroundChange = true;
+                    AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                        .ARSonEkranLessThan5SecondsForce);
+                }
+                else
+                {
+                    ForcedCarChange = false;
+                    ForcedGroundChange = false;
+                    AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                        .ARSonEkranLessThan5SecondsNoForce);
+                }
+            }
             GameManager.I.bestScoresHolder.AddToDictionary(currentRoad.groundType, new SavedCarProps(GameManager.I.lastCarProps));
             return;
         }
