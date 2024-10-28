@@ -158,6 +158,8 @@ public class ARManager : SingletonNew<ARManager>
     {
         Debug.Log("ARManager Start method called."); // This should appear in the console when the scene starts
         InfoMenu.SetActive(true);
+        SessionLogger.I.StartRecording(ScreenName.ARInfoPanel);
+
         // arInfoMenu.SetActive(false);
         // arDangerInfoMenu.SetActive(true);
         // DidSkipDangerInfo = false;
@@ -301,6 +303,7 @@ public class ARManager : SingletonNew<ARManager>
 
     public void ARM_Home()
     {
+        SessionLogger.I.StopRecording();
         GameManager.I.currentScreenType = StartScreenType.MainPanel;
         SceneManager.LoadScene(1);
     }
@@ -333,6 +336,7 @@ public class ARManager : SingletonNew<ARManager>
     {
         RaceMenu.SetActive(false);
         EndMenu.SetActive(true);
+        SessionLogger.I.StartRecording(ScreenName.AREndRacePanel);
         end_agirlikText.text = Mathf.FloorToInt(PartEffectController.I.GetMass(GameManager.I.lastCarProps)).ToString() + " Kg";
         end_speedText.text = speedText.text;
         end_timeText.text = timerText.text;
@@ -424,9 +428,9 @@ public class ARManager : SingletonNew<ARManager>
             SetWaitBG(false);
             EndMenu.SetActive(false);
             LastMenu.SetActive(true);
-            
             menuTableController.SetMenu(GameManager.I.lastCarProps, currentRoad);
-            
+            SessionLogger.I.StartRecording(ScreenName.ARLeaderboardPanel);
+
             if (DurationLast >= 5f)
             {
                 if (!ForcedCarChange)
@@ -472,17 +476,20 @@ public class ARManager : SingletonNew<ARManager>
     private void ARM_LoadCustom() 
     {
         GameManager.I.currentScreenType = StartScreenType.EditCarPanel;
+        SessionLogger.I.StopRecording();
         SceneManager.LoadScene(1);
     }
 
     private void ARM_NewCar() 
     {
         GameManager.I.currentScreenType = StartScreenType.NewCarPanel;
+        SessionLogger.I.StopRecording();
         SceneManager.LoadScene(1);
     }
 
     private void ARM_ReloadScene()
     {
+        SessionLogger.I.StopRecording();
         SceneManager.LoadScene(2);
     }
     #endregion

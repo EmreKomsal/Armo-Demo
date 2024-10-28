@@ -84,12 +84,14 @@ public class AuthController : SingletonNew<AuthController>
             auth.CurrentUser.ReloadAsync().ContinueWithOnMainThread(task =>
             {
                 AuthStateChanged(this, null);
+                SessionLogger.I.StopRecording();
                 SceneManager.LoadScene(1);
             });
         }
         else
         {
             AuthStateChanged(this, null);
+            SessionLogger.I.StopRecording();
             SceneManager.LoadScene(1);
         }
         
@@ -155,15 +157,19 @@ public class AuthController : SingletonNew<AuthController>
         }
     }
     
-    protected void DisplaySignInResult(Firebase.Auth.SignInResult result, int indentLevel) {
+    protected void DisplaySignInResult(Firebase.Auth.AuthResult result, int indentLevel) {
         string indent = new String(' ', indentLevel * 2);
         DisplayDetailedUserInfo(result.User, indentLevel);
-        var metadata = result.Meta;
+        if (result.User == null)
+        {
+            return;
+        }
+        var metadata = result.User.Metadata;
         if (metadata != null) {
             Debug.Log(String.Format("{0}Created: {1}", indent, metadata.CreationTimestamp));
             Debug.Log(String.Format("{0}Last Sign-in: {1}", indent, metadata.LastSignInTimestamp));
         }
-        var info = result.Info;
+        var info = result.AdditionalUserInfo;
         if (info != null) {
             Debug.Log(String.Format("{0}Additional User Info:", indent));
             Debug.Log(String.Format("{0}  User Name: {1}", indent, info.UserName));
@@ -459,7 +465,6 @@ public class AuthController : SingletonNew<AuthController>
                             dbRef.Collection("Users").Document(taskk.Result.User.UserId).SetAsync(entryValues).ContinueWithOnMainThread(UserUpdateComplete);
                             
                             
-                            
                             task.Result[0].Reference.UpdateAsync("members",
                                 Firebase.Firestore.FieldValue.ArrayUnion(taskk.Result.User.UserId)).ContinueWithOnMainThread(MemberUpdateComplete);
                             Dictionary<string, Object> childUpdates = new Dictionary<string, Object>();
@@ -514,7 +519,7 @@ public class AuthController : SingletonNew<AuthController>
 
     public bool IsAssistant { get; set; } = true;
     public bool IsAssistantLoadEnd { get; set; } = false;
-
+    
     
     public async void LoadAssistant()
     {
@@ -968,7 +973,7 @@ public class AuthController : SingletonNew<AuthController>
         }
     }
     
-    void HandleSignInWithSignInResult(Task<Firebase.Auth.SignInResult> task) {
+    void HandleSignInWithSignInResult(Task<Firebase.Auth.AuthResult> task) {
         // EnableUI();
         if (LogTaskCompletion(task, "Sign-in")) {
             DisplaySignInResult(task.Result, 1);

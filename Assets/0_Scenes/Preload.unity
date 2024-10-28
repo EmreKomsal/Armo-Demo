@@ -208,6 +208,7 @@ GameObject:
   m_Component:
   - component: {fileID: 293151511}
   - component: {fileID: 293151510}
+  - component: {fileID: 293151512}
   m_Layer: 0
   m_Name: FireBase
   m_TagString: Untagged
@@ -236,6 +237,7 @@ MonoBehaviour:
   customParameterValue1: 
   customParameterKey2: 
   customParameterValue2: 
+  isStudent: 1
 --- !u!4 &293151511
 Transform:
   m_ObjectHideFlags: 0
@@ -251,6 +253,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &293151512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 293151509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78108a98302e4f2caa64fdef54ffb7fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &453050164
 GameObject:
   m_ObjectHideFlags: 0
@@ -328,6 +342,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0

@@ -262,6 +262,7 @@ public class UIControl : SingletonNew<UIControl>
     public void ProfileScreen()
     {
         CloseAllParents();
+        SessionLogger.I.StartRecording(ScreenName.ProfilePanel);
         profileMailText.text = AuthController.I.auth.CurrentUser.Email;
         profileNameText.text = AuthController.I.auth.CurrentUser.DisplayName;
         profileUidText.text = AuthController.I.auth.CurrentUser.UserId;
@@ -516,6 +517,19 @@ public class UIControl : SingletonNew<UIControl>
 
     private Coroutine carLoadWaitRoutine;
 
+    private IEnumerator SessionLoggerWaitRoutine()
+    {
+        SessionLogger.I.CreateSessionFile();
+        
+        while (!SessionLogger.I.DidCreateFile)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        SetWaitBG(false);
+        
+        MainPanel();
+    }
+    
     private IEnumerator CarLoadWaitRoutine()
     {
         while (!didCarLoadEnd && !didBestScoresLoadEnd)
@@ -528,7 +542,14 @@ public class UIControl : SingletonNew<UIControl>
             yield return new WaitForEndOfFrame();
         }
         
+        SessionLogger.I.CreateSessionFile();
+        
+        while (!SessionLogger.I.DidCreateFile)
+        {
+            yield return new WaitForEndOfFrame();
+        }
         SetWaitBG(false);
+        
         MainPanel();
     }
     
@@ -754,6 +775,7 @@ public class UIControl : SingletonNew<UIControl>
     public void GaragePlay()
     {
         GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(garageCarIndex));
+        SessionLogger.I.StopRecording();
         SceneManager.LoadScene(2);
     }
 
@@ -771,6 +793,7 @@ public class UIControl : SingletonNew<UIControl>
     {
         GameManager.I.SetCarProps(SaveCarController.I.GetCarProps(playCarIndex));
         SetWaitBG(true);
+        SessionLogger.I.StopRecording();
         UtilityRoutines.I.DelayedCall(0.6f, delegate
         {
             SceneManager.LoadScene(2);
@@ -794,10 +817,12 @@ public class UIControl : SingletonNew<UIControl>
         // }
         if (isEditing)
         {
+            SessionLogger.I.StopRecording(editedCar.docPath);
             SaveCarController.I.EditCar(editedCar.saveId, editedCar);
         }
         else
         {
+            // SessionLogger.I.StopRecording(editedCar.docPath);
             SaveCarController.I.SaveCar(editedCar);
         }
         // MainPanel();
@@ -897,7 +922,18 @@ public class UIControl : SingletonNew<UIControl>
         {
             ToMainPanelFirstTime();
         }
-
+        else if (!SessionLogger.I.DidCreateFile)
+        {
+            if (carLoadWaitRoutine != null)
+            {
+                StopCoroutine(carLoadWaitRoutine);
+            }
+            carLoadWaitRoutine = StartCoroutine(SessionLoggerWaitRoutine());
+            return;
+        }
+        
+        SessionLogger.I.StartRecording(ScreenName.MainPanel);
+        
         if (AuthController.I.IsAssistantLoadEnd)
         {
             if (!AssistantController.I.OpenAssistantTab(AssistantController.AssistantTabType.MenuOverlay0, AssistantController.I.MenuOverlay0End) && DidSaveCar)
@@ -915,6 +951,9 @@ public class UIControl : SingletonNew<UIControl>
         PreviewController.I.ActivatePreview();
         garagePanelParent.SetActive(true);
         garageCarIndex = 0;
+        SessionLogger.I.StartRecording(ScreenName.GaragePanel);
+        
+        
         if (SaveCarController.I.GetCarCount() == 0)
         {
             garageNoCarExistParent.SetActive(true);
@@ -978,6 +1017,7 @@ public class UIControl : SingletonNew<UIControl>
         isGarage = false;
         CloseAllParents();
         playPanelParent.SetActive(true);
+        SessionLogger.I.StartRecording(ScreenName.PlayPanel);
         PreviewController.I.ActivatePreview();
         playCarIndex = 0;
         if (SaveCarController.I.GetCarCount() == 0)
@@ -1033,11 +1073,13 @@ public class UIControl : SingletonNew<UIControl>
         {
             editedCar = new SavedCarProps();
             isEditing = false;
+            SessionLogger.I.StartRecording(ScreenName.NewCarPanel);
         }
         else
         {
             editedCar = SaveCarController.I.GetCarProps(editIndex);
             isEditing = true;
+            SessionLogger.I.StartRecording(ScreenName.CarEditPanel);
         }
         InitAllTabs(editedCar);
         CloseAllTabs();

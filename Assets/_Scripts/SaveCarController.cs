@@ -159,6 +159,7 @@ public class SaveCarController : SingletonNew<SaveCarController>
             if (task.IsCompleted)
             {
                 newProps.docPath = task.Result.Id;
+                SessionLogger.I.StopRecording(newProps.docPath);
                 savedCars.Add(newProps);
                 carCount++;
                 AssistantController.I.SaveConfirmationBypass = false;

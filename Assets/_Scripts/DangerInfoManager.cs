@@ -46,6 +46,7 @@ public class DangerInfoManager : MonoBehaviour
 
         UtilityRoutines.I.DelayedCall(0.5f, delegate
         {
+            SessionLogger.I.StopRecording();
             SceneManager.LoadScene(1);
         });
 
@@ -57,6 +58,7 @@ public class DangerInfoManager : MonoBehaviour
 
         UtilityRoutines.I.DelayedCall(0.5f, delegate
         {
+            SessionLogger.I.StopRecording();
             SceneManager.LoadScene(3);
         });
     }
