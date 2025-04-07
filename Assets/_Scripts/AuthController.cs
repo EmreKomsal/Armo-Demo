@@ -103,6 +103,7 @@ public class AuthController : SingletonNew<AuthController>
     {
         if (!isStudent)
         {
+            ARManager.I.LoadMenu();
             return;
         }
 

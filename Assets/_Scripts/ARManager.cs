@@ -249,6 +249,7 @@ public class ARManager : SingletonNew<ARManager>
             pistSize.text = currentRoad.gameObject.transform.localScale.x.ToString();
             PistMenu.SetActive(true);
             AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType.ARPistOverlay);
+            SessionLogger.I.StartRecording(ScreenName.ARPistSizePanel);
             InfoMenu.SetActive(false);
             return;
         }
@@ -280,6 +281,7 @@ public class ARManager : SingletonNew<ARManager>
         currentRoad.SpawnCar();
         PistMenu.SetActive(false);
         StartMenu.SetActive(true);
+        SessionLogger.I.StartRecording(ScreenName.ARStartPanel);
         if (currentRoad.IsGhostAvailable)
         {
             AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType.ARYarisaBaslaGhostOverlay0,
@@ -299,6 +301,7 @@ public class ARManager : SingletonNew<ARManager>
         currentRoad.StartCar();
         StartMenu.SetActive(false);
         RaceMenu.SetActive(true);
+        SessionLogger.I.StartRecording(ScreenName.ARRacePanel);
     }
 
     public void ARM_Home()
@@ -405,6 +408,52 @@ public class ARManager : SingletonNew<ARManager>
         
     }
 
+    public void LoadMenu()
+    {
+        SetWaitBG(false);
+        EndMenu.SetActive(false);
+        LastMenu.SetActive(true);
+        // menuTableController.SetMenu(GameManager.I.lastCarProps, currentRoad);
+        SessionLogger.I.StartRecording(ScreenName.ARLeaderboardPanel);
+
+        if (DurationLast >= 5f)
+        {
+            if (!ForcedCarChange)
+            {
+                ForcedCarChange = true;
+                ForcedGroundChange = false;
+                AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                    .ARSonEkranMoreThan5SecondsForce);
+            }
+            else
+            {
+                ForcedCarChange = false;
+                ForcedGroundChange = false;
+                AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                    .ARSonEkranMoreThan5SecondsNoForce);
+            }
+        }
+        else
+        {
+            if (!ForcedGroundChange)
+            {
+                ForcedCarChange = false;
+                ForcedGroundChange = true;
+                AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                    .ARSonEkranLessThan5SecondsForce);
+            }
+            else
+            {
+                ForcedCarChange = false;
+                ForcedGroundChange = false;
+                AssistantControllerAR.I.OpenAssistantTab(AssistantControllerAR.AssistantTabType
+                    .ARSonEkranLessThan5SecondsNoForce);
+            }
+        }
+        // GameManager.I.bestScoresHolder.AddToDictionary(currentRoad.groundType, new SavedCarProps(GameManager.I.lastCarProps));
+        return;
+    }
+    
     public void LoadMenu(Task<DocumentReference> task)
     {
         if (task.IsCanceled)

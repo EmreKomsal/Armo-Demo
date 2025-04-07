@@ -1,38 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public class PartEffectController : SingletonNew<PartEffectController>
 {
-    public float minSpeed = 0.01f;
-    public float maxSpeed = 2f;
+    // public float minSpeed = 0.01f;
+    // public float maxSpeed = 2f;
     
-    public float baseSpeedKaporta0 = 0.3f;
-    public float baseSpeedKaporta1= 0.4f;
-    public float baseSpeedKaporta2= 0.6f;
+    private float baseSpeedKaporta0 = 0.3f;
+    private float baseSpeedKaporta1= 0.4f;
+    private float baseSpeedKaporta2= 0.6f;
 
-    public float speedEffectLastik0 = -0.05f;
-    public float speedEffectLastik1 = 0.0f;
-    public float speedEffectLastik2 = 0.05f;
+    private float speedEffectLastik0 = -0.05f;
+    private float speedEffectLastik1 = 0.0f;
+    private float speedEffectLastik2 = 0.05f;
 
-    public float speedEffectMotor0 = 1.2f;
-    public float speedEffectMotor1 = 0.8f;
-    public float speedEffectMotor2 = 1f;
+    private float speedEffectMotor0 = 1.2f;
+    private float speedEffectMotor1 = 0.8f;
+    private float speedEffectMotor2 = 1f;
 
-    public float speedEffectKoltuk0 = 0.15f;
-    public float speedEffectKoltuk1 = 0.0f;
-    public float speedEffectKoltuk2 = -0.15f;
+    private float speedEffectKoltuk0 = 0.15f;
+    private float speedEffectKoltuk1 = 0.0f;
+    private float speedEffectKoltuk2 = -0.15f;
     
     
-    public float speedEffectRuzgarlik0 = -0.1f;
-    public float speedEffectRuzgarlik1 = 0.1f;
-    public float speedEffectRuzgarlik2 = 0.2f;
+    private float speedEffectRuzgarlik0 = 0.2f;
+    private float speedEffectRuzgarlik1 = 0.1f;
+    private float speedEffectRuzgarlik2 = -0.1f;
 
 
-    public float speedEffectToprak = 0.6f;
-    public float speedEffectMicir = 0.8f;
-    public float speedEffectAsfalt = 1f;
-    public float speedEffectBuz = 1.2f;
+    private float speedEffectToprak = 0.6f;
+    private float speedEffectMicir = 0.8f;
+    private float speedEffectAsfalt = 1f;
+    private float speedEffectBuz = 1.2f;
 
 
     public List<float> massKaporta = new List<float> { 800, 600, 400 };
@@ -46,7 +49,9 @@ public class PartEffectController : SingletonNew<PartEffectController>
     public Vector2 shownSpeedRange = new Vector2(60f, 200f);
 
     public float maxSpeedDuration = 0.93f;
-
+    
+    
+    
     public float GetDuration(float currentSpeed)
     {
         return Mathf.Lerp(maxSpeedDuration * (shownSpeedRange.y / shownSpeedRange.x), maxSpeedDuration,
@@ -81,12 +86,16 @@ public class PartEffectController : SingletonNew<PartEffectController>
     
     private void Start()
     {
-        var min = Mathf.Clamp(
-            ((baseSpeedKaporta0 * speedEffectMotor1) + speedEffectLastik0 + speedEffectKoltuk2 + speedEffectRuzgarlik0) * speedEffectToprak,
-            minSpeed, maxSpeed);
-        var max = Mathf.Clamp(
-            ((baseSpeedKaporta2 * speedEffectMotor0) + speedEffectLastik2 + speedEffectKoltuk0 + speedEffectRuzgarlik2) * speedEffectBuz,
-            minSpeed, maxSpeed);
+        // var min = Mathf.Clamp(
+        //     ((baseSpeedKaporta0 * speedEffectMotor1) + speedEffectLastik0 + speedEffectKoltuk2 + speedEffectRuzgarlik0) * speedEffectToprak,
+        //     minSpeed, maxSpeed);
+        // var max = Mathf.Clamp(
+        //     ((baseSpeedKaporta2 * speedEffectMotor0) + speedEffectLastik2 + speedEffectKoltuk0 + speedEffectRuzgarlik2) * speedEffectBuz,
+        //     minSpeed, maxSpeed);
+        var min =
+            ((baseSpeedKaporta0 * speedEffectMotor1) + speedEffectLastik0 + speedEffectKoltuk2 + speedEffectRuzgarlik2) * speedEffectToprak;
+        var max =
+            ((baseSpeedKaporta2 * speedEffectMotor0) + speedEffectLastik2 + speedEffectKoltuk0 + speedEffectRuzgarlik0) * speedEffectBuz;
         minMaxSpeed = new Vector2(min, max);
     }
 
@@ -100,9 +109,84 @@ public class PartEffectController : SingletonNew<PartEffectController>
         Buz,
     }
     
+    /// <summary>
+    /// Iterates over all combinations of (kaporta, lastik, motor, koltuk, ruzgarlik) (each 0–2) and
+    /// for each combination and each road type (Toprak, Micir, Asfalt, Buz) computes the mass,
+    /// speed, projected speed, and duration. The results are written to (or overwrite) a CSV file.
+    /// </summary>
+    ///
+    /// <summary>
+    /// Iterates over all combinations of (kaporta, lastik, motor, koltuk, ruzgarlik) (each 0–2) and
+    /// for each combination and each road type (Toprak, Micir, Asfalt, Buz) computes the mass,
+    /// speed, projected speed, and duration. The results are written to (or overwrite) a CSV file.
+    /// This CSV is formatted so that Excel can easily open it.
+    /// </summary>
+    [Button]
+    public void WriteCarEffectCSV()
+    {
+        var min =
+            ((baseSpeedKaporta0 * speedEffectMotor1) + speedEffectLastik0 + speedEffectKoltuk2 + speedEffectRuzgarlik2) * speedEffectToprak;
+        var max =
+            ((baseSpeedKaporta2 * speedEffectMotor0) + speedEffectLastik2 + speedEffectKoltuk0 + speedEffectRuzgarlik0) * speedEffectBuz;
+        minMaxSpeed = new Vector2(min, max);
+        
+        // Define the output file path (for example, inside the Assets folder)
+        string filePath = Path.Combine(Application.dataPath, "CarEffectResults.csv");
+        StringBuilder csvContent = new StringBuilder();
+
+        // Write CSV header
+        csvContent.AppendLine("kaporta,lastik,motor,koltuk,ruzgarlik,groundType,mass,speed,projectedSpeed,duration");
+
+        // Iterate over all part combinations (0,1,2 for each)
+        for (int kaporta = 0; kaporta < 3; kaporta++)
+        {
+            for (int lastik = 0; lastik < 3; lastik++)
+            {
+                for (int motor = 0; motor < 3; motor++)
+                {
+                    for (int koltuk = 0; koltuk < 3; koltuk++)
+                    {
+                        for (int ruzgarlik = 0; ruzgarlik < 3; ruzgarlik++)
+                        {
+                            // Create a new SavedCarProps instance with the current indices
+                            SavedCarProps props = new SavedCarProps();
+                            props.kaportaId = kaporta;
+                            props.lastikId = lastik;
+                            props.motorId = motor;
+                            props.koltukId = koltuk;
+                            props.ruzgarlikId = ruzgarlik;
+
+                            // Calculate the mass for this combination
+                            float mass = GetMass(props);
+
+                            // Process each road type
+                            GroundType[] roadTypes = { GroundType.Toprak, GroundType.Micir, GroundType.Asfalt, GroundType.Buz };
+                            foreach (GroundType road in roadTypes)
+                            {
+                                // Calculate speed with the current ground type
+                                float speed = GetSpeed(props, road);
+                                float projectedSpeed = GetProjectedSpeed(speed);
+                                float duration = GetDuration(speed);
+
+                                // Append a new row to the CSV content
+                                csvContent.AppendLine(
+                                    $"{kaporta},{lastik},{motor},{koltuk},{ruzgarlik},{road},{mass},{speed},{projectedSpeed},{duration}"
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Write or overwrite the CSV file
+        File.WriteAllText(filePath, csvContent.ToString());
+        Debug.Log("CSV file written to " + filePath);
+    }    
     public float GetSpeed(SavedCarProps carProps, GroundType newGroundType = GroundType.NONE)
     {
-        var baseSpeed = minSpeed;
+        // var baseSpeed = minSpeed;
+        var baseSpeed = minMaxSpeed.x;
         if (carProps.kaportaId == 0)
         {
             baseSpeed = baseSpeedKaporta0;
@@ -189,6 +273,7 @@ public class PartEffectController : SingletonNew<PartEffectController>
             
         }
         
-        return Mathf.Clamp(baseSpeed, minSpeed, maxSpeed);
+        // return Mathf.Clamp(baseSpeed, minSpeed, maxSpeed);
+        return baseSpeed;
     }
 }

@@ -24187,7 +24187,9 @@ MonoBehaviour:
   nonSelectedBG: {fileID: 643505368}
   tabType: 4
   value: 0
-  selectedInfo: "Y\xFCksek: 10cm."
+  selectedInfo: "Y\xFCkseklik: 10cm. R\xFCzgarl\u0131klar, arac\u0131 piste iterek
+    yol tutu\u015Funu ve y\xFCksek h\u0131zlarda dengeyi art\u0131r\u0131r, b\xF6ylece
+    keskin d\xF6n\xFC\u015Flerde kontrol\xFC destekler."
 --- !u!1 &802633630
 GameObject:
   m_ObjectHideFlags: 0
@@ -25488,27 +25490,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb964e5069f8415a83f5b53874d87f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minSpeed: 0.03
-  maxSpeed: 1
-  baseSpeedKaporta0: 0.3
-  baseSpeedKaporta1: 0.4
-  baseSpeedKaporta2: 0.6
-  speedEffectLastik0: -0.05
-  speedEffectLastik1: 0
-  speedEffectLastik2: 0.05
-  speedEffectMotor0: 1.2
-  speedEffectMotor1: 0.8
-  speedEffectMotor2: 1
-  speedEffectKoltuk0: 0.15
-  speedEffectKoltuk1: 0
-  speedEffectKoltuk2: -0.15
-  speedEffectRuzgarlik0: -0.1
-  speedEffectRuzgarlik1: 0.1
-  speedEffectRuzgarlik2: 0.2
-  speedEffectToprak: 0.6
-  speedEffectMicir: 0.8
-  speedEffectAsfalt: 1
-  speedEffectBuz: 1.2
   massKaporta:
   - 800
   - 600
@@ -36438,7 +36419,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -14.583, y: -230.45001}
+  m_AnchoredPosition: {x: -14.583, y: -230.4502}
   m_SizeDelta: {x: 1460.4, y: 236.59998}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1270404840
@@ -38396,7 +38377,9 @@ MonoBehaviour:
   nonSelectedBG: {fileID: 1206468560}
   tabType: 4
   value: 0
-  selectedInfo: 
+  selectedInfo: "R\xFCzgarl\u0131klar, arac\u0131 piste iterek yol tutu\u015Funu
+    ve y\xFCksek h\u0131zlarda dengeyi art\u0131r\u0131r, b\xF6ylece keskin d\xF6n\xFC\u015Flerde
+    kontrol\xFC destekler."
 --- !u!1 &1351660305
 GameObject:
   m_ObjectHideFlags: 0
@@ -53236,7 +53219,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00024414062}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1920879884
@@ -55759,7 +55742,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00024414062}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2008482270
@@ -57538,7 +57521,9 @@ MonoBehaviour:
   nonSelectedBG: {fileID: 582413575}
   tabType: 4
   value: 0
-  selectedInfo: "Y\xFCksek: 5 cm."
+  selectedInfo: "Y\xFCkseklik: 5 cm. R\xFCzgarl\u0131klar, arac\u0131 piste iterek
+    yol tutu\u015Funu ve y\xFCksek h\u0131zlarda dengeyi art\u0131r\u0131r, b\xF6ylece
+    keskin d\xF6n\xFC\u015Flerde kontrol\xFC destekler."
 --- !u!1 &2080433979
 GameObject:
   m_ObjectHideFlags: 0
