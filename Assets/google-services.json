@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "1070232518841",
     "project_id": "armo-website",
-    "storage_bucket": "armo-website.appspot.com"
+    "storage_bucket": "armo-website.firebasestorage.app"
   },
   "client": [
     {
