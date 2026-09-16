@@ -73,3 +73,7 @@ crashlytics-build.properties
 Packages/com.ptc.vuforia.engine-10.15.4.tgz
 TestFinalv2_BackUpThisFolder_ButDontShipItWithYourGame/Managed/VuforiaScripts.dll
 TestFinalv2_BackUpThisFolder_ButDontShipItWithYourGame/Managed/UnityEngine.VRModule.dll
+
+# Vuforia engine package tarballs (too large for GitHub, download from developer.vuforia.com)
+Packages/com.ptc.vuforia.engine-*.tgz
+Packages/com.ptc.vuforia.engine-*.tgz.meta

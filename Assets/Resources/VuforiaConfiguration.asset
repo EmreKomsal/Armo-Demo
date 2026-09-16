@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -2067402452, guid: 1e108ae5f2133934f948edded555f03e, type: 3}
+  m_Script: {fileID: -2067402452, guid: 8a9a760f95896c34689febc965510927, type: 3}
   m_Name: VuforiaConfiguration
   m_EditorClassIdentifier: 
   vuforia:
     vuforiaLicenseKey: ATCNosb/////AAABmbzWu2QwNk/nohsIuujFhOqAUsyyp2GXRSlH42KtA/tPcci0bs02rKGwjGA0kvw54cUliRvJamPDVNUliMgtHLIAOBzMbVwYC5tKsXnInFYtN3+0Wy6cSDG2hE//Z3aqAnKwexihamnjDSFZEBNJCLLxlcsBtnF+TzXnB8pbV7dq3/C774E6vyU/YLgPP0ht66rmgjGbrwebuZtiyT5l02Fmdby1Snh+4tsWw3hmo5z19uOnAU+SCvlg5+/oVoJnY9+6Zye3Pbmjn/se1HbFpSc7TP3oA2e5qNeEvjFjPaqM5MdbS7GIdsNaRO9ozDKCB/fMqzxAUTQjbJ2z/8h8/S9MStNI2Hq0jnwWUpDANL95
-    ufoLicenseKey: QWVhS3lhUC8vLy8vQUFBQUtOS0FBZ09NUVVlMnJFMndEcHVBNlVoZCtaa1BkOVhKeUhrQUloMzB1ZXNZT2FId1hBN0toaVFrMnc5M0VvengyOGdodFk0QU5Uc1VQdExOeHhWQU16QXBQR0h0alRDU3RMQlNPUk1sMXo4RExEd1lhMFZnQTZ4Rkw1SFhhMDI1RU5sWFJWZWhuZ3hkald2TFpPcFJJT3g3bzVKT29rcTJOV2tnTWdtd0dXdmtpdi8yc0gzRHJnTGVxVWNkRGljY0I3ZWYvWVczclBGOURqZkgxNDVaYzR0MWUzejhabFdka2l4cjY4My9acm4zM3JmY3lkcHJ5c1Z5U0JadVVZcC9HZmlubVk2ZG0xMlhqWjJwN0dFRnRhcTZZTDlEQjhxcm5UWmJCT3lZelg4d0srNGFHWloyN29oVlU0R2Z6dGx6ZERRY0hVL0lHUXphZUFvZ3ptUWgzRkNWT0g3bTFaQld6dVR6SGlaRG5XNnA=
+    ufoLicenseKey: QVYwUTdEci8vLy8vQUFBQUtGNFN2MDF5R0UvVW44L3lHVUxMNHo0Z1dLR2tTWmM3WVo1V0xzbkptOFpOditQSmZwc0ZiL3RFeXh1R04xeUZ4VXJ3UGZDNWI3YnhySStOZ1F0Y2FiSDV3WUxiVkpPckZPbmduT0NqMGZSbkk0dVNIeTlCZ01nVjBKTHY0b3JFbkl5N2tjRmd4Z2pVSkN0S3J6Q0RHNkEzdlVvSGR4aHU3MjFzQkFYWDdHRFV4QUs5cVJVbVFFZklQSWF0bzNlWDlIS0VwRmQ3ekY1dE01a1BkTUw0UkxGNzZjVUFkdTAxSjRtWGYzOXk2SDBMNHRQbzJ2Ty8yNnBTUHc4cExTaGxreHZpaGRGUEF6aDJ0a1RGcW1HaDFwRWllQ1lwRFk0dFpDZXErMFZpRGtvSXdEUVYwUnVNRUxrTDF2NHk5K2ovOWhTaTdTUWtUcHl6ZndEL3E3dGU1MDRVSEZKeStiTzFWS1VNYnBSYnkzcGQ=
     delayedInitialization: 0
     cameraFocusModeSetting: 2
     cameraDeviceModeSetting: -1
@@ -23,10 +23,12 @@ MonoBehaviour:
     modelTargetRecoWhileExtendedTracked: 1
     shareRecordingsInITunes: 0
     logLevel: 0
-    version: 10.27.3
-    eulaAcceptedVersions: '{"Values":["10.11","0.0","7.1","8.3","7.5","10.15","10.18","10.24","10.22","10.25","7.2","8.1","10.27"]}'
+    version: 11.4.4
+    eulaAcceptedVersions: '{"Values":["10.11","0.0","7.1","8.3","7.5","10.15","10.18","10.24","10.22","10.25","7.2","8.1","10.27","11.4"]}'
   database:
     disableModelExtraction: 0
+  plugins:
+    pluginDirectory: asset://Vuforia
   shaders:
     depthMaskShader: {fileID: 4800000, guid: 9894afa5f3a5e4bbca625981beb1b20e, type: 3}
     outlineShader: {fileID: 4800000, guid: 88d3b6b5cf364476ca39fcec255331b1, type: 3}
@@ -44,11 +46,13 @@ MonoBehaviour:
     autoStartTracker: 1
     arcoreRequirement: 1
     autoImportArcore: 1
-    thirdPartyARCoreClientDetected: 1
+    thirdPartyARCoreClientDetected: 0
   playmode:
     mRecordingPath: 
     playModeType: 0
+    mSimulatorInputActionAsset: {fileID: -944628639613478452, guid: eae7022f5cfd04e8189b1f372421b225,
+      type: 3}
   webcam:
     renderTextureLayer: 30
   packageInformation:
-    ARFoundationVersion: 4.2.10
+    ARFoundationVersion: 
